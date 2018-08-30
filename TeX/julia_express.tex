@@ -54,9 +54,9 @@
 The Purpose of this document is to introduce programmers to Julia programming by example.
 This is a simplified exposition of the language.\footnote{The rocket ship clip is free for download at \url{http://www.clipartlord.com/free-cartoon-rocketship-clip-art-2/}.}
 
-It is best to execute these examples by copy-pasteing to Julia REPL or copying them to a file and next running them using \lstinline|include| function. The difference is that copy-paste approach will echo output of each instruction to the terminal.
+It is best to execute these examples by copy-pasting to Julia REPL or copying them to a file and next running them using \lstinline|include| function. The difference is that copy-paste approach will echo output of each instruction to the terminal.
 
-If some package is missing on your system switch to package manager mode by pressing \lstinline|]| in Julia REPL, and then write \lstinline|add [package name]| to require installing it.\footnote{Sometimes a package might fail to load lates using \lstinline|using [package name]|. The reason might be that Julia 1.0 was just released and not all packages have tagged therir latest versions. If you have this problem then installing the package using \lstinline|add [package name]#master| on package that throws an error should solve the problem. All examples given in this documented were tested to work under Julia 1.0.}
+If some package is missing on your system switch to package manager mode by pressing \lstinline|]| in Julia REPL, and then write \lstinline|add [package name]| to require installing it.\footnote{Sometimes a package might fail to load using \lstinline|using [package name]|. The reason might be that Julia 1.0 was just released and not all packages have tagged their latest versions. If you have this problem then installing the package using \lstinline|add [package name]#master| on package that throws an error should solve the problem. All examples given in this documented were tested to work under Julia 1.0.}
 
 Major stuff not covered (please see the documentation):
 \begin{enumerate}[label=\arabic*),nolistsep]
@@ -85,7 +85,7 @@ versioninfo()
 #   LLVM: libLLVM-6.0.0 (ORCJIT, broadwell)
 \end{lstlisting}
 
-All sugestions how this guide can be improved are welcomed. Please contact me at \href{mailto:bkamins@sgh.waw.pl}{bkamins@sgh.waw.pl}.
+All suggestions how this guide can be improved are welcomed. Please contact me at \href{mailto:bkamins@sgh.waw.pl}{bkamins@sgh.waw.pl}.
 
 \section{Getting around}
 
@@ -159,7 +159,7 @@ There is no automatic type conversion, unless some function explicitly performs 
   Bool(0)        # converts to boolean false
   Bool(2)        # conversion error
   Char(89)       # integer to char
-  string(true)   # cast bool to string (works with other types, note small caps)
+  string(true)   # cast Bool to string (works with other types, note small caps)
   string(1,true) # string can take more than one argument and concatenate them
   zero(10.0)     # zero of type of 10.0
   one(Int64)     # one of type Int64
@@ -187,7 +187,7 @@ One can verify type of a value in the following way:
   isa(1.0, Float64)          # true
   isa(1.0, Number)           # true, Number is abstract type
   supertype(Int64)           # supertype of Int64
-  subtypes(Real)             # subtypes of bastract type Real
+  subtypes(Real)             # subtypes of abstract type Real
 \end{lstlisting}
 It is possible to perform calculations using arbitrary precision arithmetic, complex and rational numbers:
 \begin{lstlisting}
@@ -306,15 +306,15 @@ Additionally Julia offers sparse and distributed matrices (see documentation for
 
 Commonly needed array utility functions:
 \begin{lstlisting}
-  a = [x * y for x in 1:2, y in 1, z in 1:3] # 2x3 array of Int64; singelton dimension is dropped
-  a = [x * y for x in 1:2, y in 1:1, z in 1:3] # 2x1x3 array of Int64; singelton dimension is not dropped
+  a = [x * y for x in 1:2, y in 1, z in 1:3] # 2x3 array of Int64; singleton dimension is dropped
+  a = [x * y for x in 1:2, y in 1:1, z in 1:3] # 2x1x3 array of Int64; singleton dimension is not dropped
   ndims(a)             # number of dimensions in a
   eltype(a)            # type of elements in a
   length(a)            # number of elements in a
   size(a)              # tuple containing dimension sizes of a
   axes(a)              # tuple of ranges specifying array axes
   eeachindex(a)        # each index to an array a
-  vec(a)               # cast array to vetor (single dimension)
+  vec(a)               # cast array to vector (single dimension)
   squeeze(a, dims=2)   # remove 2nd dimension as it has size 1
   sum(a, dims=3)       # calculate sums for 3rd dimensions, similarly: mean, std,
                        # prod, minimum, maximum, any, all
@@ -624,9 +624,9 @@ Rebinding variables defined in other modules is not allowed.
 \section{Operators}
 Julia follows standard operators with the following quirks:
 \begin{lstlisting}
-  true || false    # binary or operator (singeltons only), || and && use short-circut evaluation
+  true || false    # binary or operator (singletons only), || and && use short-circut evaluation
   [1 2] .& [2 1]    # bitwise and operator (vectorized by .)
-  1 < 2 < 3        # chaining conditions is OK (singeltons only without .)
+  1 < 2 < 3        # chaining conditions is OK (singletons only without .)
   [1 2] .< [2 1]   # for vectorized operators need to add '.' in front
   x = [1 2 3]
   2x + 2(x .+ 1)      # multiplication can be omitted between a literal and a variable or a left parenthesis
@@ -645,7 +645,7 @@ Julia follows standard operators with the following quirks:
   z .+ x # x broadcasted vertically
   z .+ y # y broadcasted horizontally
 
-  # explicit broadcast of singelton dimensions
+  # explicit broadcast of singleton dimensions
   # function + is called for each array element
   broadcast(+, [1 2], [1; 2])
 
