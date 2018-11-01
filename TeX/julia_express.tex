@@ -340,7 +340,7 @@ Observe the treatment of trailing singleton dimensions:
   a[1, :]            # 4 element vector
   a[1:1, :]          # 1x4 matrix
   a[:, :, 1, 1]      # works 3x4 matrix
-  a[:, :, :, [true]] # wroks 3x4x1x1 matrix
+  a[:, :, :, [true]] # works 3x4x1x1 matrix
   a[1, 1, [false]]   # works 0-element Array{Int64,1}
 \end{lstlisting}
 
