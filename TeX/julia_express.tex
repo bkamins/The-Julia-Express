@@ -315,7 +315,7 @@ Commonly needed array utility functions:
   axes(a)              # tuple of ranges specifying array axes
   eeachindex(a)        # each index to an array a
   vec(a)               # cast array to vector (single dimension)
-  squeeze(a, dims=2)   # remove 2nd dimension as it has size 1
+  dropdims(a, dims=2)  # remove 2nd dimension as it has size 1
   sum(a, dims=3)       # calculate sums for 3rd dimensions, similarly: mean, std,
                        # prod, minimum, maximum, any, all
   count(x -> x > 0, a) # count number of times a predicate is true, similar: all, any
