@@ -148,7 +148,7 @@ All basic types above are immutable.
 Specifying type assertion is optional (and usually it is not needed, but I give it to show how you the names of types).
 Type assertions for variables are made in the same way and they can be useful to catch bugs in your code.
 
-An important feature of integers in Julia is that by default they are 64 bit on 64 bit machine and 32 bit on 32 bit machine. This means that \lstinline|1::Int32| assertion will fail on 64-bit version. Notably \lstinline|Int| is a constant whose value is either \lstinline|Int64| or \lstinline|Int32| depending on version (the same with unsigned integer \lstinline|UInt|). 
+An important feature of integers in Julia is that by default they are 64 bit on 64 bit machine and 32 bit on 32 bit machine. This means that \lstinline|1::Int32| assertion will fail on 64-bit version. Notably \lstinline|Int| is a constant whose value is either \lstinline|Int64| or \lstinline|Int32| depending on version (the same with unsigned integer \lstinline|UInt|).
 
 There is no automatic type conversion, unless some function explicitly performs it. This is especially important in function calls. Examples of conversions:
 \begin{lstlisting}
@@ -213,15 +213,16 @@ It is possible to perform calculations using arbitrary precision arithmetic, com
         child { node {Integer}
             child[sibling distance=5em]{ node {Bool} }
             child[sibling distance=5em]{ node {Signed}
+                child { node {BigInt} }
                 child { node {Int8 \\ Int16 \\ Int32 \\ Int64 \\ Int128} }
             }
-            child[sibling distance=5em]{ node {Unsigned}
+            child[sibling distance=8em]{ node {Unsigned}
                 child { node {UInt8 \\ UInt16 \\ UInt32 \\ UInt64 \\ UInt128} }
             }
-            child[sibling distance=5em]{ node {BigInt} }
         }
-        child[sibling distance=12.5em]{ node {AbstractFloat}
-            child { node {Float16 \\ Float32 \\ Float64 \\ BigFloat} }
+        child[sibling distance=14.5em]{ node {AbstractFloat}
+            child[sibling distance=5.5em]{ node {BigFloat} }
+            child[sibling distance=5.5em]{ node {Float16 \\ Float32 \\ Float64} }
         }
     };
 \end{tikzpicture}
