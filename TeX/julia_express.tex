@@ -53,14 +53,14 @@
 \tableofcontents
 
 \section{Introduction}
-The Purpose of this document is to introduce programmers to Julia programming by example.
+The Purpose of this document is to introduce programmers to the Julia programming by example.
 This is a simplified exposition of the language.\footnote{The rocket ship clip is free for download at \url{http://www.clipartlord.com/free-cartoon-rocketship-clip-art-2/}.}
 
-It is best to execute these examples by copy-pasting to Julia REPL or copying them to a file and next running them using \lstinline|include| function. The difference is that copy-paste approach will echo output of each instruction to the terminal.
+It is simplest to execute these examples by copy-pasting to the Julia REPL (\url{https://docs.julialang.org/en/latest/stdlib/REPL/}) or copying them to a file and next running them using \lstinline|include| function. The difference is that copy-paste approach will echo output of each instruction to the terminal.
 
-If some package is missing on your system switch to package manager mode by pressing \lstinline|]| in Julia REPL, and then write \lstinline|add [package name]| to require installing it.\footnote{Sometimes a package might fail to load using \lstinline|using [package name]|. The reason might be that Julia 1.0 was just released and not all packages have tagged their latest versions. If you have this problem then installing the package using \lstinline|add [package name]#master| on package that throws an error should solve the problem. All examples given in this documented were tested to work under Julia 1.0.}
+If some package is missing on your system switch to the package manager mode by pressing \lstinline|]| in the Julia REPL, and then write \lstinline|add [package name]| to require installing it.
 
-Major stuff not covered (please see the documentation):
+This is an introductory document. Important topics that a person learning the Julia should be aware of, that are not covered are:
 \begin{enumerate}[label=\arabic*),nolistsep]
   \item parametric types;
   \item parallel and distributed processing;
@@ -71,49 +71,49 @@ Major stuff not covered (please see the documentation):
   \item creation of coroutines;
   \item integration with C, Fortran, Python and R.
 \end{enumerate}
+You can read about them in the latest Julia documentation at \url{http://julia.readthedocs.org/en/latest/manual/}.
 
-You can find latest Julia documentation at \url{http://julia.readthedocs.org/en/latest/manual/}.
-
-Julia Express was tested using the following 64-bit Julia version:
+\emph{The Julia Express} was tested using the following 64-bit Julia version:
 \begin{lstlisting}
 versioninfo()
-# Julia Version 1.0.0
-# Commit 5d4eaca0c9 (2018-08-08 20:58 UTC)
+# Julia Version 1.1.0
+# Commit 80516ca202 (2019-01-21 21:24 UTC)
 # Platform Info:
 #   OS: Windows (x86_64-w64-mingw32)
-#   CPU: Intel(R) Core(TM) i5-5200U CPU @ 2.20GHz
+#   CPU: Intel(R) Core(TM) i7-8550U CPU @ 1.80GHz
 #   WORD_SIZE: 64
 #   LIBM: libopenlibm
-#   LLVM: libLLVM-6.0.0 (ORCJIT, broadwell)
+#   LLVM: libLLVM-6.0.1 (ORCJIT, skylake)
 \end{lstlisting}
 
 All suggestions how this guide can be improved are welcomed. Please contact me at \href{mailto:bkamins@sgh.waw.pl}{bkamins@sgh.waw.pl}.
 
 \section{Getting around}
 
-Running \lstinline|julia| invokes interactive (REPL) mode. In this mode some useful commands are:
+Running \lstinline|julia| invokes an interactive (REPL) mode. In this mode some useful commands are:
 \begin{enumerate}[label=\arabic*),nolistsep]
   \item \lstinline|^D| (exits Julia);
   \item \lstinline|^C| (interrupts computations);
   \item \lstinline|?| (enters help mode);
   \item \lstinline|;| (enters system shell mode);
   \item \lstinline|]| (enters package manager mode);
+  \item \lstinline|Ctrl-l| clears screen;
   \item putting \lstinline|;| after the expression will disable showing its value in REPL (not needed in scripts).
 \end{enumerate}
 
-Examples of some essential functions in REPL (they can be also invoked in scripts):
+Examples of some essential functions in the Julia REPL (they can be also invoked in scripts):
 \begin{lstlisting}
   @edit max(1,2)      # show the definition of max function when invoked with arguments 1 and 2
   varinfo()           # list of global variables and their types
-  cd("D:/")           # change working directory to D:/ (on Windows)
+  cd("D:/")           # change working directory to D:/ (on Windows you can use /)
   pwd()               # get current working directory
   include("file.jl")  # execute source file
-  exit(1)             # exit Julia with code 1 (exit code 0 by default)
+  exit(1)             # exit Julia with code 1 (exit code 0 is used by default)
   clipboard([1,2])    # copy data to system clipboard
-  clipboard()         # load data from system clipboard as string
+  clipboard()         # load data from system clipboard as a string
 \end{lstlisting}
 
-You can execute Julia script by running \lstinline|julia script.jl|.
+You can execute a Julia script from OS shell by running \lstinline|julia script.jl|.
 
 Try saving the following example script to a file and run it (more examples of all the constructs used are given in following sections):
 \begin{lstlisting}
@@ -121,14 +121,14 @@ Try saving the following example script to a file and run it (more examples of a
 function es(n::Int) # accepts one integer argument
     isprime = trues(n) # n-element vector of true-s
     isprime[1] = false # 1 is not a prime
-    for i in 2:isqrt(n) # loop odd integers less or equal than sqrt(n)
+    for i in 2:isqrt(n) # loop integers less or equal than sqrt(n)
         if isprime[i] # conditional evaluation
             for j in i^2:i:n # sequence with step i
                 isprime[j] = false
             end
         end
     end
-    return filter(x -> isprime[x], 1:n) # filter using anonymous function
+    return filter(x -> isprime[x], 1:n) # filter using an anonymous function
 end
 
 println(es(100))         # print all primes less or equal than 100
@@ -136,21 +136,21 @@ println(es(100))         # print all primes less or equal than 100
 \end{lstlisting}
 
 \section{Basic literals and types}
-Basic scalar literals (\lstinline|x::Type| is a literal \lstinline|x| with type \lstinline|Type| assertion):
+Basic scalar literals are the following:
 \begin{lstlisting}
-  1::Int               # 64 bit integer on 64 bit machine, no overflow warnings
+  1::Int               # 64 bit integer on 64 bit Julia, no overflow warnings
   1.0::Float64         # 64 bit float, defines NaN, -Inf, Inf
   true::Bool           # boolean, allows "true" and "false"
   'c'::Char            # character, allows Unicode
   "s"::AbstractString  # strings, allows Unicode, see also Strings below
 \end{lstlisting}
-All basic types above are immutable.
-Specifying type assertion is optional (and usually it is not needed, but I give it to show how you the names of types).
+The syntax \lstinline|x::Type| is a literal \lstinline|x| with type \lstinline|Type| assertion. In practice the type assertion is not needed. Here we use it only to show the type of each kind of a literal. All basic types listed above are immutable.
+
 Type assertions for variables are made in the same way and they can be useful to catch bugs in your code.
 
-An important feature of integers in Julia is that by default they are 64 bit on 64 bit machine and 32 bit on 32 bit machine. This means that \lstinline|1::Int32| assertion will fail on 64-bit version. Notably \lstinline|Int| is a constant whose value is either \lstinline|Int64| or \lstinline|Int32| depending on version (the same with unsigned integer \lstinline|UInt|).
+An important feature of integers in Julia is that by default they are 64 bit on 64 bit Julia and 32 bit on 32 bit Julia. This means that \lstinline|1::Int32| assertion will fail on 64-bit Julia. Notably \lstinline|Int| is a constant whose value is either \lstinline|Int64| or \lstinline|Int32| depending on version (the same with unsigned integer \lstinline|UInt|).
 
-There is no automatic type conversion, unless some function explicitly performs it. This is especially important in function calls. Examples of conversions:
+There is no automatic type conversion, unless some function explicitly performs it. This is especially important in function calls. The simplest way to perform the conversion of a value \lstinline|x| to type \lstinline|T| by writing \lstinline|T(x)|, for example:
 \begin{lstlisting}
   Int64('a')     # character to integer
   Int64(2.0)     # float to integer
@@ -166,7 +166,7 @@ There is no automatic type conversion, unless some function explicitly performs 
   zero(10.0)     # zero of type of 10.0
   one(Int64)     # one of type Int64
 \end{lstlisting}
-General conversion can be done using \lstinline|convert(Type, x)| (typically \lstinline|convert| would fall back to a type constructor):
+General conversion can be done using \lstinline|convert(Type, x)| (typically \lstinline|convert| will not perform a copy if \lstinline|x| already has type \lstinline|Type|):
 \begin{lstlisting}
   convert(Int64, 1.0) # convert float to integer
 \end{lstlisting}
@@ -174,10 +174,10 @@ Parsing strings can be done using \lstinline|parse(Type, str)|:
 \begin{lstlisting}
   parse(Int64, "1") # parse "1" string as Int64
 \end{lstlisting}
-Automatic promotion of many arguments to common type (if any) can be achieved using \lstinline|promote|:
+Automatic promotion of many arguments to common type (if any exists) can be achieved using \lstinline|promote|:
 \begin{lstlisting}
   promote(true, BigInt(1)//3, 1.0) # tuple (see Tuples) of BigFloats, true promoted to 1.0
-  promote("a", 1)                  # promotion to common type not possible
+  promote("a", 1)                  # promotion to a common type is not possible
 \end{lstlisting}
 Many operations (arithmetic, assignment) are defined in a way that performs automatic type promotion (so this is a way to work around no automatic type conversion rule in Julia).
 
@@ -187,7 +187,7 @@ One can verify type of a value in the following way:
   isa("abc", AbstractString) # true
   isa(1, Float64)            # false, integer is not a float
   isa(1.0, Float64)          # true
-  isa(1.0, Number)           # true, Number is abstract type
+  1.0 isa Number             # an alternative syntax; true, Number is abstract type
   supertype(Int64)           # supertype of Int64
   subtypes(Real)             # subtypes of abstract type Real
 \end{lstlisting}
@@ -195,7 +195,8 @@ It is possible to perform calculations using arbitrary precision arithmetic, com
 \begin{lstlisting}
   BigInt(10)^1000   # big integer
   BigFloat(10)^1000 # big float, see documentation how to change default precision
-  1 + 1im           # complex number
+  big(1.5)          # value of big type chosen appropriately, in this case BigFloat
+  1 + 1im           # a complex number
   123//456          # rational numbers are created using // operator
 \end{lstlisting}
 
@@ -232,13 +233,12 @@ It is possible to perform calculations using arbitrary precision arithmetic, com
 Type hierarchy of all standard numeric types is given in Figure \ref{fig:numeric}.
 
 \section{Special literals and types}
-Type beasts:
 \begin{lstlisting}
   Any     # all objects are of this type
   Union{} # subtype of all types, no object can have this type
-  Nothing # type indicating nothing, subtype of Any
+  Nothing # type indicating nothing (absence of a value), a subtype of Any
   nothing # only instance of Nothing
-  Missing # type indicating missing value
+  Missing # type indicating missing value (a value exists but is unknown), a subtype of Any
   missing # only instance of Missing
 \end{lstlisting}
 Additionally \verb|#undef| indicates an incompletely initialized object element (see documentation for details).
@@ -246,49 +246,51 @@ Additionally \verb|#undef| indicates an incompletely initialized object element 
 \subsection{Tuples and NamedTuples}
 Tuples are immutable sequences indexed from 1:
 \begin{lstlisting}
-  ()            # empty tuple
-  (1,)          # one element tuple
-  ("a", 1)      # two element tuple
+  ()            # an empty tuple
+  (1,)          # a one element tuple
+  ("a", 1)      # a two element tuple
   ('a', false)::Tuple{Char, Bool} # tuple type assertion
   x = (1, 2, 3)
   x[1]          # 1 (element)
   x[1:2]        # (1, 2) (tuple)
   x[4]          # bounds error
-  x[1] = 1      # error - tuple is not mutable
+  x[1] = 1      # error - a tuple is not mutable
   a, b = x      # tuple unpacking a==1, b==2
 \end{lstlisting}
 Additionally you can add names to tuple entries (via named tuples):
 \begin{lstlisting}
-  NamedTuple()  # empty named tuple
-  (a=1,)        # one element named tuple
-  (x="a", y=1)  # two element named tuple
+  NamedTuple()  # an empty named tuple
+  (a=1,)        # a one element named tuple
+  (x="a", y=1)  # a two element named tuple
   x = (p=1, q=2, r=3)
   x.p           # access to element p of a tuple
   typeof(x)     # NamedTuple{(:p, :q, :r),Tuple{Int64,Int64,Int64}}, field names are part of type
 \end{lstlisting}
+Named tuple can be thought of as an anonymous \lstinline|struct| --- see composite types below (so they behave in a different way than tuples when testing for subtyping. This is an advanced topic that we do not cover in this introduction, see the Julia manual for the details \url{https://docs.julialang.org/en/latest/manual/types/}).
 
 \subsection{Arrays}
 Arrays are mutable and passed by reference.
-Array creation:
+
+Useful array creation functions are the following:
 \begin{lstlisting}
   Array{Char}(undef, 2, 3, 4) # uninitialized 2x3x4 array of Chars
   Array{Int64}(undef, 0, 0)   # degenerate 0x0 array of Int64
   zeros(5)             # vector of Float64 zeros
   ones(5)              # vector of Float64 ones
   ones(Int64, 2, 1)    # 2x1 array of Int64 ones
-  trues(3), falses(3)  # tuple of vector of trues and of falses
+  trues(3), falses(3)  # a tuple of a vector of trues and a vector of falses
   Matrix(I, 3, 3)      # 3x3 Bool identity matrix, requires to run first: using LinearAlgebra
-  x = range(0, stop=1, length=11) # iterator having 11 equally spaced elements
-  collect(x)           # converts iterator to vector
+  x = range(0, stop=1, length=11) # an iterator having 11 equally spaced elements
+  collect(x)           # converts an iterator to vector
   1:10                 # iterable from 1 to 10
   1:2:10               # iterable from 1 to 9 with 2 skip
-  reshape(1:12, 3, 4)  # 3x4 array filled with 1:12 values
-  fill("a", 2, 2)      # 2x2 array filled with "a"
-  repeat(rand(2,2), 3, 2) # 2x2 random matrix repeated 3x2 times
-  x = [1, 2]           # two element vector
+  reshape(1:12, 3, 4)  # a 3x4 matrix like object filled columnwise with values from 1 to 12
+  fill("a", 2, 2)      # a 2x2 array filled with "a"
+  repeat(rand(2,2), 3, 2) # a 2x2 random matrix repeated 3x2 times
+  x = [1, 2]           # a two element vector
   resize!(x, 5)        # resize x in place to hold 5 values (filled with garbage)
-  [1]                  # vector with one element (not a scalar)
-  [x * y for x in 1:2, y in 1:3] # comprehension generating 2x3 array
+  [1]                  # a vector with one element (not a scalar)
+  [x * y for x in 1:2, y in 1:3] # a comprehension generating 2x3 array
   Float64[x^2 for x in 1:4] # casting comprehension result element type to Float64
   [1 2]                # 1x2 matrix (hcat function)
   [1 2]'               # 2x1 Adjoint matrix (reuses memory)
@@ -297,28 +299,33 @@ Array creation:
   [1; 2]               # vector (vcat function)
   [1 2 3; 1 2 3]       # 2x3 matrix (hvcat function)
   [1; 2] == [1 2]'     # false, different array dimensions
+  hcat(1:2)==[1 2]'    # true, dimensions match
   [(1, 2)]             # 1-element vector
   collect((1, 2))      # 2-element vector by tuple unpacking
   [[1 2] 3]            # concatenate along rows (hcat)
   [[1; 2]; 3]          # concatenate along columns (vcat)
+  tuple([1,2,3])       # a 1-element tuple containing a vector
+  Tuple([1,2,3])       # a 3-element tuple unpacking a vector
 \end{lstlisting}
 Vectors (1D arrays) are treated as column vectors.
 
 Most of the functionality for working with matrices are in \lstinline|LinearAlgebra| package.
-Additionally Julia offers sparse and distributed matrices (see documentation for details).
+Additionally Julia offers sparse and distributed matrices (see the documentation for details).
 
 Commonly needed array utility functions:
 \begin{lstlisting}
-  a = [x * y for x in 1:2, y in 1, z in 1:3] # 2x3 array of Int64; singleton dimension is dropped
-  a = [x * y for x in 1:2, y in 1:1, z in 1:3] # 2x1x3 array of Int64; singleton dimension is not dropped
+  a = [x * y for x in 1:2, y in 1, z in 1:3] # 2x3 array of Int64; a singleton dimension is dropped
+  a = [x * y for x in 1:2, y in 1:1, z in 1:3] # 2x1x3 array of Int64; a singleton dimension is not dropped
   ndims(a)             # number of dimensions in a
   eltype(a)            # type of elements in a
   length(a)            # number of elements in a
-  size(a)              # tuple containing dimension sizes of a
-  axes(a)              # tuple of ranges specifying array axes
+  size(a)              # a tuple containing dimension sizes of a
+  axes(a)              # a tuple of ranges specifying array axes
   eachindex(a)         # each index to an array a
-  vec(a)               # cast array to vector (single dimension)
-  dropdims(a, dims=2)  # remove 2nd dimension as it has size 1
+  CartesianIndices(a)  # a lazy iterator over Cartesian indices into a
+  LinearIndices(a)     # a lazy iterator over linear indices into a
+  vec(a)               # cast an array to vector (single dimension)
+  dropdims(a, dims=2)  # remove the 2nd dimension as it has length 1
   sum(a, dims=3)       # calculate sums for 3rd dimensions, similarly: mean, std,
                        # prod, minimum, maximum, any, all
   count(x -> x > 0, a) # count number of times a predicate is true, similar: all, any
@@ -330,12 +337,12 @@ Access functions:
   a[1]                 # get scalar 0.0
   a[end]               # get scalar 1.0 (last position)
   a[1:2:end]           # every second element from range
-  view(a, 1:2:101)     # a view into a subarray of a
+  view(a, 1:2:101)     # a view into a (a subarray of a)
   a[[1, 3, 6]]         # 1st, 3rd and 6th element of a, Array{Float64,1}
   lastindex(a)         # last index of the collection a; similarly firstindex
 \end{lstlisting}
 
-Observe the treatment of trailing singleton dimensions:
+Observe the treatment of singleton dimensions:
 \begin{lstlisting}
   a = reshape(1:12, 3, 4)
   a[:, 1:2]          # 3x2 matrix
@@ -367,8 +374,8 @@ Arrays are assigned and passed by reference. Therefore copying is provided:
   x[1] = "Bang"
   x[2][1] = false
   a               # identical as x
-  b               # only x[2][1] changed from original x
-  c               # contents of original x
+  b               # only x[2][1] changed from the original x
+  c               # contents of the original x
 \end{lstlisting}
 
 Array types syntax examples:
@@ -378,8 +385,18 @@ Array types syntax examples:
   [1 2; 3 4]::Matrix{Int64}   # matrix of Int64
 \end{lstlisting}
 
+Numbers are treated as 0-dimensional containers:
+\begin{lstlisting}
+  x = 10   # an integer
+  x[]      # returns 10
+  x[1,1]   # also returns 10, as trailing 1-s are ignored by Julia
+  size(x)  # an empty tuple
+  x = [10] # a one element array can be also indexed with []
+  x[]      # gets you 10, this will only work for arrays with exactly 1 element
+\end{lstlisting}
+
 \subsection{Composite types}
-You can define and access composite types:
+You can define and access composite types. Here is an example of a mutable composite type:
 \begin{lstlisting}
   mutable struct Point
     x::Int64
@@ -393,26 +410,27 @@ You can define and access composite types:
   p.z = 1           # error - no such field
   fieldnames(Point) # get names of type fields
 \end{lstlisting}
-You can define type to be immutable by removing \lstinline|mutable|.
+
+Similarly you can define some type to be immutable by removing \lstinline|mutable| keyword (named tuples are anonymous immutable structs).
 
 There are also union types (see documentation of \emph{Type Unions} in the Julia manual for details).
 
-Finally you can define that your type is a subtype of an abstract type (see documentation of \emph{Abstract Types} in the Julia manual for details).
+Finally you can define that your type is a subtype of an abstract type to properly position it in the type hierarchy, or even define your own abstract types (see documentation of \emph{Abstract Types} in the Julia manual for details).
 
 \subsection{Dictionaries}
 Associative collections (key-value dictionaries):
 \begin{lstlisting}
-  x = Dict{Float64, Int64}()        # empty dictionary mapping floats to integers
-  y = Dict("a"=>1, "b"=>2)          # filled dictionary
+  x = Dict{Float64, Int64}()        # an empty dictionary mapping floats to integers
+  y = Dict("a"=>1, "b"=>2)          # a filled dictionary
   y["a"]                            # element retrieval
   y["c"]                            # error
   y["c"] = 3                        # added element
   haskey(y, "b")                    # check if y contains key "b"
   keys(y), values(y)                # tuple of collections returning keys and values in y
-  delete!(y, "b")                   # delete key from a collection, see also: pop!
+  delete!(y, "b")                   # delete a key from a collection, see also: pop!
   get(y,"c","default")              # return y["c"] or "default" if not haskey(y,"c")
 \end{lstlisting}
-Julia also supports operations on sets and dequeues, priority queues and heaps (please refer to documentation).
+Julia also supports operations on sets, created similarly with \lstinline|Set| constructor (please refer to the documentation for details).
 
 \section{Strings}
 String operations:
@@ -426,19 +444,28 @@ String operations:
   x = 123
   "$x + 3 = $(x+3)"      # unescaped $ is used for interpolation
   "\$199"                # to get a $ symbol you must escape it
+  raw"D:\path"           # a raw string literal; useful for paths under Windows
+  s = "abc"              # a string of type String
+  chop(s)                # remove last character from s, returns a SubString
 \end{lstlisting}
+
+Both \lstinline|String| and \lstinline|SubString| are subtypes of \lstinline|AbstractString|.
+The  \lstinline|SubString| type is used to avoid copying of strings. Usually, when writing your own code,
+it is best to assume that the user will pass an arbitrary \lstinline|AbstractString|.
 
 PCRE regular expressions handling:
 \begin{lstlisting}
   r = r"A|B"           # create new regexp
   occursin(r, "CD")    # false, no match found
-  m = match(r, "ACBD") # find first regexp match, see documentation for details
+  m = match(r, "ACBD") # find first regexp match, see the documentation for details
 \end{lstlisting}
 
-There is a vast number of string functions --- please refer to documentation.
+There is a vast number of string functions --- please refer to the documentation.
+
+Warning! Note that you can index-into a string, e.g. \lstinline|"abc"[1]| will return you a character \lstinline|'a'|. However, in general Julia encodes standard strings using UTF-8 and indexing is based on bytes not characters, so correct string indexing requires you to understand how UTF-8 encoding works. See the documentation for details.
 
 \section{Programming constructs}
-The simplest way to create new variable is by assignment:
+The simplest way to bind a value to a new variable is by an assignment:
 \begin{lstlisting}
   x = 1.0          # x is bound to Float64 value
   x = 1            # now x is bound to value Int32 on 32 bit machine and Int64 on 64 bit machine
@@ -488,26 +515,26 @@ You can define your own functions:
   function f(x, y=10)            # the same as above but allowing multiple expressions
       x + y                      # in the body of the function
   end
-  f(3, 2)                        # simple call, 5 returned
+  f(3, 2)                        # a simple call, 5 returned
   f(3)                           # 13 returned
-  (x -> x^2)(3)                  # anonymous function with a call example
-  () -> 0                        # anonymous function with no arguments
-  h(x...) = sum(x)/length(x) - mean(x) # vararg function; x is a tuple
-  h(1, 2, 3)                     # result is 0
-  x = (2, 3)                     # tuple
+  (x -> x^2)(3)                  # an anonymous function with a call example
+  () -> 0                        # an anonymous function with no arguments
+  h(x...) = sum(x)/length(x) - mean(x) # a vararg function; x is a tuple
+  h(1, 2, 3)                     # the result is 0
+  x = (2, 3)                     # a tuple
   f(x)                           # error
   f(x...)                        # OK - tuple unpacking
   s(x; a = 1, b = 1) = x * a / b # function with keyword arguments a and b
-  s(3, b = 2)                    # call with keyword argument
-  q(f::Function, x) = 2 * f(x)   # function can be passed around
+  s(3, b = 2)                    # call with a keyword argument
+  q(f::Function, x) = 2 * f(x)   # a function can be passed around; here we require that f is a Function
   q(x -> 2x, 10)                 # 40 returned, no need to use * in 2x (means 2*x)
-  q(10) do x                     # creation of anonymous function by do construct, useful eg. in IO
+  q(10) do x                     # creation of an anonymous function by do construct, useful eg. in IO
     2 * x
   end
   m = reshape(1:12, 3, 4)
   map(x -> x ^ 2, m)             # 3x4 array returned with transformed data
   filter(x -> bitstring(x)[end] == '0', 1:12)  # a fancy way to choose even integers from the range
-  ==(1)                          # returns a function that test for equality
+  ==(1)                          # returns a function that tests for equality to 1
   findall(==(1), 1:10)           # find indices of all elements equal to 1, similar: findfirst, findlast
 \end{lstlisting}
 
@@ -531,9 +558,9 @@ There is an important part of Julia terminology is that a \emph{function} can ha
     y, x
   end
   g(x::Int, y::Bool) = x * y        # this will be called when x is Int and y is Bool
-  g(1.0, 1)                         # first definition is invoked
-  g(1, 1)                           # second definition is invoked
-  g(1, true)                        # third definition is invoked
+  g(1.0, 1)                         # the first definition is invoked
+  g(1, 1)                           # the second definition is invoked
+  g(1, true)                        # the third definition is invoked
   methods(g)                        # list all methods defined for g
   t(; x::Int64 = 2) = x             # a single keyword argument
   t()                               # 2 returned
@@ -542,21 +569,21 @@ There is an important part of Julia terminology is that a \emph{function} can ha
 \end{lstlisting}
 
 \section{Variable scoping}
-The following constructs introduce new variable scope:
+The following constructs introduce a new variable scope:
 \lstinline|function|, \lstinline|while|,
 \lstinline|for|, \lstinline|try/catch|,
 \lstinline|let|, \lstinline|struct|, \lstinline|mutable struct|.
 
 You can define variables as:
 \begin{itemize}
-  \item \lstinline|global|: use variable from global scope;
-  \item \lstinline|local|: define a new variable in current scope;
+  \item \lstinline|global|: use variable from a global scope of the current module;
+  \item \lstinline|local|: define a new variable in a current scope;
   \item \lstinline|const|: ensure variable type is constant (global only).
 \end{itemize}
 
 Special cases:
 \begin{lstlisting}
-  t                  # error, variable does not exist
+  t                  # error, a variable t does not exist
   f() = global t = 1
   f()                # after the call t is defined globally
 
@@ -567,7 +594,7 @@ Special cases:
     end
     x
   end
-  f1(10)            # 10; inside loop we use outer local variable
+  f1(10)            # 10; inside the loop we use the outer local variable
 
   function f2(n)
     x = 0
@@ -581,17 +608,22 @@ Special cases:
 
   function f3(n)
     for i = 1:n
-      x = i
+      h = i
     end
-    x
+    h
   end
-  f3(10)            # error; x not defined in outer scope
+  f3(10)            # error; h not defined in outer scope
 
   const x = 2
   x = 3 # warning, value changed
   x = 3.0 # error, wrong type
+
+  function f()
+      x::Int = 1
+      x = 2.5 # error will be thrown when f() is called as x has to have type Int
+  end
 \end{lstlisting}
-Global constants speed up execution.
+Global constants speed up code execution as the compiler knows their type.
 
 Loops and comprehensions rebind variables on each iteration, so they are safe to use then creating closures in iteration:
 \begin{lstlisting}
@@ -622,23 +654,31 @@ Modules encapsulate code and each module has its own global name space (module n
   #import variable y to global scope (even if not exported)
   import .M.y
 \end{lstlisting}
-Rebinding variables defined in other modules is not allowed.
+Rebinding values of variables defined in other modules is not allowed. Here is a short typical example that often surprises people:
+\begin{lstlisting}
+  sin(1) # works
+  sin = 1 # fails in module Main you cannot rebind a value defined in module Base
+  cos = 1 # works, as cos was not called yet so it was not imported from Base into Main
+  cos # returns 1
+  cos(1) # fails - cos is bound to 1 in the module Main
+  Base.cos(1) # works
+\end{lstlisting}
 
 \section{Operators}
 Julia follows standard operators with the following quirks:
 \begin{lstlisting}
   true || false    # binary or operator (singletons only), || and && use short-circut evaluation
-  [1 2] .& [2 1]    # bitwise and operator (vectorized by .)
+  [1 2] .& [2 1]   # bitwise and operator (vectorized by .)
   1 < 2 < 3        # chaining conditions is OK (singletons only without .)
   [1 2] .< [2 1]   # for vectorized operators need to add '.' in front
   x = [1 2 3]
-  2x + 2(x .+ 1)      # multiplication can be omitted between a literal and a variable or a left parenthesis
+  2x + 2(x .+ 1)   # multiplication can be omitted between a literal and a variable or a left parenthesis
   y = [1, 2, 3]
-  x + y  # error
-  x .+ y # 3x3 matrix, dimension broadcasting
-  x + y' # 1x3 matrix
-  x * y  # array multiplication, 1-element vector (not scalar)
-  x .* y # element-wise multiplication, 3x3 array
+  x + y  # an error
+  x .+ y # a 3x3 matrix, dimension broadcasting
+  x + y' # a 1x3 matrix
+  x * y  # array multiplication, a 1-element vector (not scalar)
+  x .* y # element-wise multiplication, a 3x3 array
 
   x == [1 2 3]  # true, object looks the same
   x === [1 2 3] # false, objects not identical
@@ -648,16 +688,27 @@ Julia follows standard operators with the following quirks:
   z .+ x # x broadcasted vertically
   z .+ y # y broadcasted horizontally
 
-  # explicit broadcast of singleton dimensions
+  # an explicit broadcast of singleton dimensions
   # function + is called for each array element
   broadcast(+, [1 2], [1; 2])
-
   # broadcasting using . operator
   using Random
   length([randstring(10) for i in 1:5]) # 5 - length of an array
   length.([randstring(10) for i in 1:5]) # 5-element array of 10s - lengths of strings
 \end{lstlisting}
-Many typical matrix transformation functions are available (see documentation).
+
+Function broadcasting examples:
+\begin{lstlisting}
+  t(x::Float64, y::Float64 = 1.0) = x * y
+  t(1.0, 2.0)               # OK
+  t([1.0 2.0])              # error
+  t.([1.0 2.0])             # OK
+  t([1.0 2.0], 2.0)         # error
+  t.([1.0 2.0], 2.0)        # OK
+  t.(2.0, [1.0 2.0])        # OK
+  t.([1.0 2.0], [1.0 2.0])  # OK
+  t.([1.0, 2.0], [1.0 2.0]) # OK
+\end{lstlisting}
 
 \section{Essential general usage functions}
 \begin{lstlisting}
@@ -685,16 +736,16 @@ Many typical matrix transformation functions are available (see documentation).
   fieldnames(typeof(1:2)) # get field names of a type
   zip(1:3, 1:3) |> collect # convert iterables to iterable tuple and pass it to collect
   enumerate("abc")  # create iterator of tuples (index, collection element)
-  collect(enumerate("abc"))
-  isempty("abc")    # check if collection is empty; strings are treated as collections of characters
+  collect(enumerate("abc")) # and materialize it
+  isempty("abc")    # check if a collection is empty; strings are treated as collections of characters
   'b' in "abc"      # check if element is in a collection
   indexin(collect("abc"), collect("abrakadabra")) # [1, 2, nothing] ('c' not found), needs arrays
   findall(in("abrakadabra"), "abc") # [1, 2] ('c' was not found)
   unique("abrakadabra") # return unique elements
   issubset("abc", "abcd") # check if every element in fist collection is in the second
-  argmax("abrakadabra") # index of maximal element (3 - 'r' in this case)
-  findmax("abrakadabra") # tuple: maximal element and its index
-  filter(x->mod(x,2)==0, 1:10) # retain elements of collection that meet predicate
+  argmax("abrakadabra") # an index of maximal element (3 - 'r' in this case)
+  findmax("abrakadabra") # tuple: a maximal element and its index
+  filter(x->mod(x,2)==0, 1:10) # retain elements of a collection that meet predicate
   dump(1:2:5)       # show all user-visible structure of an object
   sort(rand(10))    # sort 10 uniform random values, sort! for in-place operation
 \end{lstlisting}
@@ -703,8 +754,8 @@ Many typical matrix transformation functions are available (see documentation).
 For I/O details refer documentation. There are numerous packages providing this functionality.
 Basic operations from \lstinline|DelimitedFiles| package:
 \begin{itemize}
-  \item \lstinline|readdlm|, \lstinline|readcsv|: read from file
-  \item \lstinline|writedlm|, \lstinline|writecsv|: write to a file
+  \item \lstinline|readdlm|: read from file
+  \item \lstinline|writedlm|: write to a file
 \end{itemize}
 
 Warning! Trailing spaces are not discarded if \lstinline|delim=' '| in file reading.
@@ -719,7 +770,7 @@ Basic random numbers:
   randn(10)     # generate vector of 10 random numbers from standard normal distribution
 \end{lstlisting}
 
-Advanced randomness form \lstinline|Distributions| package TODO: FIXME:
+Advanced randomness form \lstinline|Distributions| package:
 \begin{lstlisting}
   using Distributions # load package
   sample(1:10, 10)    # single bootstrap sample from set 1-10
@@ -751,19 +802,6 @@ Assertions:
   @test_throws DomainError sqrt(-1) # passed, sqrt(-1) is not possible
 \end{lstlisting}
 
-Function broadcasting:
-\begin{lstlisting}
-  t(x::Float64, y::Float64 = 1.0) = x * y
-  t(1.0, 2.0)               # OK
-  t([1.0 2.0])              # error
-  t.([1.0 2.0])             # OK
-  t([1.0 2.0], 2.0)         # error
-  t.([1.0 2.0], 2.0)        # OK
-  t.(2.0, [1.0 2.0])        # OK
-  t.([1.0 2.0], [1.0 2.0])  # OK
-  t.([1.0, 2.0], [1.0 2.0]) # OK
-\end{lstlisting}
-
 Benchmarking:
 \begin{lstlisting}
   @time [x for x in 1:10^6];    # print time and memory
@@ -771,7 +809,7 @@ Benchmarking:
   @elapsed [x for x in 1:10^6]   # return time
   @allocated [x for x in 1:10^6] # return memory
 \end{lstlisting}
-Use \lstinline|BenchmarkTools| package for a more powerful functionality.
+Use \lstinline|BenchmarkTools| package for a more powerful benchmarking functionality.
 
 \section{Plotting}
 There are several plotting packages for Julia: \lstinline|Plots|, \lstinline|Gadfly| and \lstinline|PyPlot|.
