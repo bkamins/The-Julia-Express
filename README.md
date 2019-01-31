@@ -2,7 +2,7 @@
 
  <img src="rocketship11.png" alt="Julia Express" width="150">
 
-Current Julia 1.0 manual is available as [PDF document](http://bogumilkaminski.pl/files/julia_express.pdf).
+A current Julia 1.0 manual (also valid for Julia 1.1) is available as [PDF document](http://bogumilkaminski.pl/files/julia_express.pdf).
 
 Versions of manual for older releases of Julia:
 
