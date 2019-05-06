@@ -812,8 +812,8 @@ Benchmarking:
 Use \lstinline|BenchmarkTools| package for a more powerful benchmarking functionality.
 
 \section{Plotting}
-There are several plotting packages for Julia: \lstinline|Plots|, \lstinline|Gadfly| and \lstinline|PyPlot|.
-Here we show how to use on \lstinline|PyPlot|.
+There are several plotting packages for Julia like \lstinline|Plots| (which is an umbrella packages for several plotting backends) and \lstinline|PyPlot|.
+Here we show how to use on \lstinline|PyPlot| that should be familiar to Python users.
 \begin{lstlisting}
   using PyPlot
   using Random
@@ -824,23 +824,23 @@ Here we show how to use on \lstinline|PyPlot|.
 
 A simple example adapting\newline\url{https://matplotlib.org/1.2.1/examples/pylab_examples/histogram_demo.html}:
 \begin{lstlisting}
-using Distributions
-using PyPlot
+  using Distributions
+  using PyPlot
 
-mu, sigma = 100, 15
-x = mu .+ sigma * randn(10000)
+  mu, sigma = 100, 15
+  x = mu .+ sigma * randn(10000)
 
-n, bins, patches = plt[:hist](x, 50, density=1,
-    facecolor="green", alpha=0.75)
+  n, bins, patches = plt[:hist](x, 50, density=1,
+      facecolor="green", alpha=0.75)
 
-y = pdf.(Ref(Normal(mu, sigma)), bins);
-plot(bins, y, "r--", linewidth=1)
+  y = pdf.(Ref(Normal(mu, sigma)), bins);
+  plot(bins, y, "r--", linewidth=1)
 
-xlabel("Smarts")
-ylabel("Probability")
-title(raw"$\mathrm{Histogram\ of\ IQ:}\ \mu=100,\ \sigma=15$")
-axis([40, 160, 0, 0.03])
-grid(true)
+  xlabel("Smarts")
+  ylabel("Probability")
+  title(raw"$\mathrm{Histogram\ of\ IQ:}\ \mu=100,\ \sigma=15$")
+  axis([40, 160, 0, 0.03])
+  grid(true)
 \end{lstlisting}
 
 producing:
@@ -848,6 +848,58 @@ producing:
 \centering
 \includegraphics[width=9cm]{hist.pdf}
 \end{figure}
+
+\section{Working with tabular data}
+
+There are multiple packages supporting tabular data for the Julia language.
+
+Here we will show how \lstinline|DataFrames| and \lstinline|CSV| packages can be used.
+
+Loading a CSV file:
+\begin{lstlisting}
+  using DataFrames
+  using CSV
+  path = joinpath(dirname(pathof(DataFrames)), "../docs/src/assets/iris.csv")
+  df = DataFrame(CSV.File(path));
+  first(df, 5) # print first 5 rows of a data frame; use the last function for last rows
+\end{lstlisting}
+
+produces the following output:
+\begin{lstlisting}
+  4x5 DataFrame
+  | Row | SepalLength | SepalWidth | PetalLength | PetalWidth | Species     |
+  |     | Float64     | Float64    | Float64     | Float64    | String      |
+  |-----+-------------+------------+-------------+------------+-------------|
+  | 1   | 5.1         | 3.5        | 1.4         | 0.2        | Iris-setosa |
+  | 2   | 4.9         | 3.0        | 1.4         | 0.2        | Iris-setosa |
+  | 3   | 4.7         | 3.2        | 1.3         | 0.2        | Iris-setosa |
+  | 4   | 4.6         | 3.1        | 1.5         | 0.2        | Iris-setosa |
+\end{lstlisting}
+
+Here is a limited list of most useful operations on a \lstinline|DataFrame| we have just read in:
+\begin{lstlisting}
+  DataFrame(a=1:10, b=rand(10)) # manual creation of a DataFrame from a list of columns
+  describe(df) # get a summary information about a data frame
+  df.Species # get a column Species from a data frame
+  df[:Species] # the same as above
+  df[1, 5] # get a value from row 1 and column 5 (Species again) from a DataFrame
+  df[1:2, 1:2] # subset a data frame getting two first rows and two first columns
+  Matrix(df[:, 1:4]) # convert columns 1 to 4 to a matrix
+  names(df) # get column names in the data frame as Symbols
+  nrow(df), ncol(df) # number of rows and columns in a data frame
+  df.key = axes(df, 1) # add a new variable named key to a data frame
+  sort(df, :SepalWidth) # return a new data frame that is sorted by SepalWidth column
+  filter(row -> row.SepalWidth > 3, df) # return a new data frame with only rows that meet the predicate
+  push!(df, (1, 2, 3, 4, "Some species")) # add a new row at the end of the data frame
+
+  # calculate sum of SepalLength column by Species column and store it in x column
+  by(df, :Species, x = :SepalLength=>sum)
+
+  # transform df to long format taking SepalLength as values and key and Species as id variable
+  df2 = stack(df, :SepalLength, [:key, :Species])
+  unstack(df2) # a reverse operation - wide to long format
+\end{lstlisting}
+
 
 \section{The Joy of Julia}
 
