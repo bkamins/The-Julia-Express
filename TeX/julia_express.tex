@@ -830,7 +830,7 @@ A simple example adapting\newline\url{https://matplotlib.org/1.2.1/examples/pyla
   mu, sigma = 100, 15
   x = mu .+ sigma * randn(10000)
 
-  n, bins, patches = plt[:hist](x, 50, density=1,
+  n, bins, patches = plt.hist(x, 50, density=1,
       facecolor="green", alpha=0.75)
 
   y = pdf.(Ref(Normal(mu, sigma)), bins);
