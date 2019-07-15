@@ -880,8 +880,8 @@ Here is a limited list of most useful operations on a \lstinline|DataFrame| we h
 \begin{lstlisting}
   DataFrame(a=1:10, b=rand(10)) # manual creation of a DataFrame from a list of columns
   describe(df) # get a summary information about a data frame
-  df.Species # get a column Species from a data frame
-  df[:Species] # the same as above
+  df.Species # get a column Species from a data frame without copying
+  df[!, :Species] # the same as above
   df[1, 5] # get a value from row 1 and column 5 (Species again) from a DataFrame
   df[1:2, 1:2] # subset a data frame getting two first rows and two first columns
   Matrix(df[:, 1:4]) # convert columns 1 to 4 to a matrix
@@ -916,4 +916,3 @@ You can fully appreciate it (actually it is an animation of revolving hearts) wh
 Please make sure that you run the code on a fast terminal with font that supports Unicode (for instance under Windows I can recommend ConEmu, \url{https://conemu.github.io/}).
 
 \end{document}
-
