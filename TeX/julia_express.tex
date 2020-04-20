@@ -274,7 +274,7 @@ Additionally you can add names to tuple entries (via named tuples):
   x.p           # access to element p of a tuple
   typeof(x)     # NamedTuple{(:p, :q, :r),Tuple{Int64,Int64,Int64}}, field names are part of type
 \end{lstlisting}
-Named tuple can be thought of as an anonymous \lstinline|struct| --- see composite types below (so they behave in a different way than tuples when testing for subtyping. This is an advanced topic that we do not cover in this introduction, see the Julia manual for the details \url{https://docs.julialang.org/en/latest/manual/types/}).
+Named tuple can be thought of as an anonymous \lstinline|struct| --- see composite types below (so they behave in a different way than tuples when testing for subtyping). This is an advanced topic that we do not cover in this introduction, see the Julia manual for the details \url{https://docs.julialang.org/en/latest/manual/types/}).
 
 \subsection{Arrays}
 Arrays are mutable and passed by reference.
@@ -447,7 +447,7 @@ String operations:
   "Ho " ^ 3              # repeat string
   string("a = ", 123.3)  # create using print function
   repr(123.3)            # fetch value of show function to a string
-  occursin("CD", "ABCD") # check if first string contains second
+  occursin("CD", "ABCD") # check if the second string contains the first
   "\"\n\t\$"             # C-like escaping in strings, new \$ escape
   x = 123
   "$x + 3 = $(x+3)"      # unescaped $ is used for interpolation
@@ -527,7 +527,7 @@ You can define your own functions:
   f(3)                           # 13 returned
   (x -> x^2)(3)                  # an anonymous function with a call example
   () -> 0                        # an anonymous function with no arguments
-  h(x...) = sum(x)/length(x) - mean(x) # a vararg function; x is a tuple
+  h(x...) = sum(x)/length(x) - mean(x) # a vararg function; x is a tuple; need to run first: using Statistics
   h(1, 2, 3)                     # the result is 0
   x = (2, 3)                     # a tuple
   f(x)                           # error
@@ -750,7 +750,7 @@ Function broadcasting examples:
   indexin(collect("abc"), collect("abrakadabra")) # [1, 2, nothing] ('c' not found), needs arrays
   findall(in("abrakadabra"), "abc") # [1, 2] ('c' was not found)
   unique("abrakadabra") # return unique elements
-  issubset("abc", "abcd") # check if every element in fist collection is in the second
+  issubset("abc", "abcd") # check if every element in the first collection is in the second
   argmax("abrakadabra") # an index of maximal element (3 - 'r' in this case)
   findmax("abrakadabra") # tuple: a maximal element and its index
   filter(x->mod(x,2)==0, 1:10) # retain elements of a collection that meet predicate
