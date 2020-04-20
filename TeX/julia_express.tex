@@ -527,7 +527,7 @@ You can define your own functions:
   f(3)                           # 13 returned
   (x -> x^2)(3)                  # an anonymous function with a call example
   () -> 0                        # an anonymous function with no arguments
-  h(x...) = sum(x)/length(x) - mean(x) # a vararg function; x is a tuple; need to run first: using Statistics
+  h(x...) = sum(x)/length(x) - mean(x) # a vararg function; x is a tuple; call first: using Statistics
   h(1, 2, 3)                     # the result is 0
   x = (2, 3)                     # a tuple
   f(x)                           # error
