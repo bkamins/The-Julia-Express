@@ -53,14 +53,28 @@
 \tableofcontents
 
 \section{Introduction}
-The Purpose of this document is to introduce programmers to the Julia programming by example.
-This is a simplified exposition of the language.\footnote{The rocket ship clip is free for download at \url{http://www.clipartlord.com/free-cartoon-rocketship-clip-art-2/}.}
+The Purpose of this document is to introduce programmers to the Julia
+programming by example. This is a simplified exposition of the
+language.\footnote{The rocket ship clip is free for download at
+\url{http://www.clipartlord.com/free-cartoon-rocketship-clip-art-2/}.}
 
-It is simplest to execute these examples by copy-pasting to the Julia REPL (\url{https://docs.julialang.org/en/latest/stdlib/REPL/}) or copying them to a file and next running them using \lstinline|include| function. The difference is that copy-paste approach will echo output of each instruction to the terminal.
+It is simplest to execute these examples by copy-pasting to the Julia REPL
+(\url{https://docs.julialang.org/en/latest/stdlib/REPL/}) or copying them to a
+file and next running them using \lstinline|include| function. The difference is
+that copy-paste approach will echo output of each instruction to the terminal.
 
-If some package is missing on your system switch to the package manager mode by pressing \lstinline|]| in the Julia REPL, and then write \lstinline|add [package name]| to require installing it.
+If some package is missing on your system switch to the package manager mode by
+pressing \lstinline|]| in the Julia REPL, and then write
+\lstinline|add [package name]| to require installing it.
 
-This is an introductory document. Important topics that a person learning the Julia should be aware of, that are not covered are:
+Over the years of using Julia I have learned that for each project you have it
+is best to have a separate project environment that keeps track of its
+dependencies. You can check out this blog post
+\url{https://bkamins.github.io/julialang/2020/05/18/project-workflow.html} to
+read more about it.
+
+This is an introductory document. Important topics that a person learning the
+Julia should be aware of, that are not covered are:
 \begin{enumerate}[label=\arabic*),nolistsep]
   \item parametric types;
   \item parallel and distributed processing;
@@ -71,23 +85,28 @@ This is an introductory document. Important topics that a person learning the Ju
   \item creation of coroutines;
   \item integration with C, Fortran, Python and R.
 \end{enumerate}
-You can read about them in the latest Julia documentation at \url{http://julia.readthedocs.org/en/latest/manual/}.
+You can read about them in the latest Julia documentation at
+\url{http://julia.readthedocs.org/en/latest/manual/}.
 
-\emph{The Julia Express} was tested using the following 64-bit Julia version:
+\emph{The Julia Express} was tested using the following 64-bit Julia version
+(you can check your version by calling running \lstinline|versioninfo()| in your
+Julia session):
 \begin{lstlisting}
-versioninfo()
-# Julia Version 1.1.0
-# Commit 80516ca202 (2019-01-21 21:24 UTC)
-# Platform Info:
-#   OS: Windows (x86_64-w64-mingw32)
-#   CPU: Intel(R) Core(TM) i7-8550U CPU @ 1.80GHz
-#   WORD_SIZE: 64
-#   LIBM: libopenlibm
-#   LLVM: libLLVM-6.0.1 (ORCJIT, skylake)
+Julia Version 1.4.2
+Commit 44fa15b150* (2020-05-23 18:35 UTC)
+Platform Info:
+  OS: Linux (x86_64-pc-linux-gnu)
+  CPU: Intel(R) Core(TM) i7-8550U CPU @ 1.80GHz
+  WORD_SIZE: 64
+  LIBM: libopenlibm
+  LLVM: libLLVM-8.0.1 (ORCJIT, skylake)
 \end{lstlisting}
 
-If you prefer to read this document in a different format than PDF then the simplest approach to do it is to
-clone the project repository \url{https://github.com/bkamins/The-Julia-Express} to your local folder and use
+
+
+If you prefer to read this document in a different format than PDF then the
+simplest approach to do it is to clone the project repository
+\url{https://github.com/bkamins/The-Julia-Express} to your local folder and use
 Pandoc to perform an appropriate conversion. For instance running the command
 \begin{lstlisting}
 pandoc -i julia_express.tex -f latex -t html5 -s -o julia_express.html
@@ -98,7 +117,8 @@ All suggestions how this guide can be improved are welcomed. Please contact me a
 
 \section{Getting around}
 
-Running \lstinline|julia| invokes an interactive (REPL) mode. In this mode some useful commands are:
+Running \lstinline|julia| invokes an interactive (REPL) mode.
+In this mode some useful commands are:
 \begin{enumerate}[label=\arabic*),nolistsep]
   \item \lstinline|^D| (exits Julia);
   \item \lstinline|^C| (interrupts computations);
@@ -106,7 +126,8 @@ Running \lstinline|julia| invokes an interactive (REPL) mode. In this mode some 
   \item \lstinline|;| (enters system shell mode);
   \item \lstinline|]| (enters package manager mode);
   \item \lstinline|Ctrl-l| clears screen;
-  \item putting \lstinline|;| after the expression will disable showing its value in REPL (not needed in scripts).
+  \item putting \lstinline|;| after the expression will disable showing its value
+        in REPL (not needed in scripts).
 \end{enumerate}
 
 Examples of some essential functions in the Julia REPL (they can be also invoked in scripts):
@@ -123,7 +144,8 @@ Examples of some essential functions in the Julia REPL (they can be also invoked
 
 You can execute a Julia script from OS shell by running \lstinline|julia script.jl|.
 
-Try saving the following example script to a file and run it (more examples of all the constructs used are given in following sections):
+Try saving the following example script to a file and run it (more examples of
+all the constructs used are given in following sections):
 \begin{lstlisting}
 """Sieve of Eratosthenes function docstring"""
 function es(n::Int) # accepts one integer argument
@@ -152,13 +174,24 @@ Basic scalar literals are the following:
   'c'::Char            # character, allows Unicode
   "s"::AbstractString  # strings, allows Unicode, see also Strings below
 \end{lstlisting}
-The syntax \lstinline|x::Type| is a literal \lstinline|x| with type \lstinline|Type| assertion. In practice the type assertion is not needed. Here we use it only to show the type of each kind of a literal. All basic types listed above are immutable.
+The syntax \lstinline|x::Type| is a literal \lstinline|x| with type
+\lstinline|Type| assertion. In practice the type assertion is not needed. Here
+we use it only to show the type of each kind of a literal. All basic types
+listed above are immutable.
 
-Type assertions for variables are made in the same way and they can be useful to catch bugs in your code.
+Type assertions for variables are made in the same way and they can be useful to
+catch bugs in your code.
 
-An important feature of integers in Julia is that by default they are 64 bit on 64 bit Julia and 32 bit on 32 bit Julia. This means that \lstinline|1::Int32| assertion will fail on 64-bit Julia. Notably \lstinline|Int| is a constant whose value is either \lstinline|Int64| or \lstinline|Int32| depending on version (the same with unsigned integer \lstinline|UInt|).
+An important feature of integers in Julia is that by default they are 64 bit on
+64 bit Julia and 32 bit on 32 bit Julia. This means that \lstinline|1::Int32|
+assertion will fail on 64-bit Julia. Notably \lstinline|Int| is a constant whose
+value is either \lstinline|Int64| or \lstinline|Int32| depending on version (the
+same with unsigned integer \lstinline|UInt|).
 
-There is no automatic type conversion, unless some function explicitly performs it. This is especially important in function calls. The simplest way to perform the conversion of a value \lstinline|x| to type \lstinline|T| by writing \lstinline|T(x)|, for example:
+There is no automatic type conversion, unless some function explicitly performs
+it. This is especially important in function calls. The simplest way to perform
+the conversion of a value \lstinline|x| to type \lstinline|T| by writing
+\lstinline|T(x)|, for example:
 \begin{lstlisting}
   Int64('a')     # character to integer
   Int64(2.0)     # float to integer
@@ -174,7 +207,9 @@ There is no automatic type conversion, unless some function explicitly performs 
   zero(10.0)     # zero of type of 10.0
   one(Int64)     # one of type Int64
 \end{lstlisting}
-General conversion can be done using \lstinline|convert(Type, x)| (typically \lstinline|convert| will not perform a copy if \lstinline|x| already has type \lstinline|Type|):
+General conversion can be done using \lstinline|convert(Type, x)| (typically
+\lstinline|convert| will not perform a copy if \lstinline|x| already has type
+\lstinline|Type|):
 \begin{lstlisting}
   convert(Int64, 1.0) # convert float to integer
 \end{lstlisting}
@@ -182,12 +217,15 @@ Parsing strings can be done using \lstinline|parse(Type, str)|:
 \begin{lstlisting}
   parse(Int64, "1") # parse "1" string as Int64
 \end{lstlisting}
-Automatic promotion of many arguments to common type (if any exists) can be achieved using \lstinline|promote|:
+Automatic promotion of many arguments to common type (if any exists) can be
+achieved using \lstinline|promote|:
 \begin{lstlisting}
   promote(true, BigInt(1)//3, 1.0) # tuple (see Tuples) of BigFloats, true promoted to 1.0
   promote("a", 1)                  # promotion to a common type is not possible
 \end{lstlisting}
-Many operations (arithmetic, assignment) are defined in a way that performs automatic type promotion (so this is a way to work around no automatic type conversion rule in Julia).
+Many operations (arithmetic, assignment) are defined in a way that performs
+automatic type promotion (so this is a way to work around no automatic type
+conversion rule in Julia).
 
 One can verify type of a value in the following way:
 \begin{lstlisting}
@@ -199,7 +237,8 @@ One can verify type of a value in the following way:
   supertype(Int64)           # supertype of Int64
   subtypes(Real)             # subtypes of abstract type Real
 \end{lstlisting}
-It is possible to perform calculations using arbitrary precision arithmetic, complex and rational numbers:
+It is possible to perform calculations using arbitrary precision arithmetic,
+complex and rational numbers:
 \begin{lstlisting}
   BigInt(10)^1000   # big integer
   BigFloat(10)^1000 # big float, see documentation how to change default precision
@@ -249,7 +288,8 @@ Type hierarchy of all standard numeric types is given in Figure \ref{fig:numeric
   Missing # type indicating missing value (a value exists but is unknown), a subtype of Any
   missing # only instance of Missing
 \end{lstlisting}
-Additionally \verb|#undef| indicates an incompletely initialized object element (see documentation for details).
+Additionally \verb|#undef| indicates an incompletely initialized object element
+(see documentation for details).
 
 \subsection{Tuples and NamedTuples}
 Tuples are immutable sequences indexed from 1:
@@ -274,7 +314,11 @@ Additionally you can add names to tuple entries (via named tuples):
   x.p           # access to element p of a tuple
   typeof(x)     # NamedTuple{(:p, :q, :r),Tuple{Int64,Int64,Int64}}, field names are part of type
 \end{lstlisting}
-Named tuple can be thought of as an anonymous \lstinline|struct| --- see composite types below (so they behave in a different way than tuples when testing for subtyping). This is an advanced topic that we do not cover in this introduction, see the Julia manual for the details \url{https://docs.julialang.org/en/latest/manual/types/}).
+\lstinline|NamedTuple| can be thought of as an anonymous \lstinline|struct| ---
+see composite types below (so they behave in a different way than tuples when
+testing for subtyping). This is an advanced topic that we do not cover in this
+introduction, see the Julia manual for the details
+\url{https://docs.julialang.org/en/latest/manual/types/}).
 
 \subsection{Arrays}
 Arrays are mutable and passed by reference.
@@ -317,8 +361,9 @@ Useful array creation functions are the following:
 \end{lstlisting}
 Vectors (1D arrays) are treated as column vectors.
 
-Most of the functionality for working with matrices are in \lstinline|LinearAlgebra| package.
-Additionally Julia offers sparse and distributed matrices (see the documentation for details).
+Most of the functionality for working with matrices are in
+\lstinline|LinearAlgebra| package. Additionally Julia offers sparse and
+distributed matrices (see the documentation for details).
 
 Commonly needed array utility functions:
 \begin{lstlisting}
@@ -332,19 +377,22 @@ Commonly needed array utility functions:
   eachindex(a)         # each index to an array a
   CartesianIndices(a)  # a lazy iterator over Cartesian indices into a
   LinearIndices(a)     # a lazy iterator over linear indices into a
-  vec(a)               # cast an array to vector (single dimension)
+  vec(a)               # cast an array to vector (single dimension); reuses memory
   dropdims(a, dims=2)  # remove the 2nd dimension as it has length 1
   sum(a, dims=3)       # calculate sums for 3rd dimensions, similarly: mean, std,
-                       # prod, minimum, maximum, any, all
-  count(x -> x > 0, a) # count number of times a predicate is true, similar: all, any
+                       # prod, minimum, maximum, any, all;
+                       # using Statistics is required for statistical functions
+  count(>(0), a)       # count number of times a predicate is true, similar: all, any
+                       # note that we create an anonymous function with >(0) here
 \end{lstlisting}
 
 Access functions:
 \begin{lstlisting}
   a = 0:0.01:1         # range with step 0.01
   a[1]                 # get scalar 0.0
+  a[begin]             # get scalar 0.0 (first position)
   a[end]               # get scalar 1.0 (last position)
-  a[1:2:end]           # every second element from range
+  a[begin:2:end]       # every second element from range
   view(a, 1:2:101)     # a view into a (a subarray of a)
   a[[1, 3, 6]]         # 1st, 3rd and 6th element of a, Array{Float64,1}
   lastindex(a)         # last index of the collection a; similarly firstindex
@@ -419,11 +467,16 @@ You can define and access composite types. Here is an example of a mutable compo
   fieldnames(Point) # get names of type fields
 \end{lstlisting}
 
-Similarly you can define some type to be immutable by removing \lstinline|mutable| keyword (named tuples are anonymous immutable structs).
+Similarly you can define some type to be immutable by removing
+\lstinline|mutable| keyword (named tuples are anonymous immutable structs).
 
-There are also union types (see documentation of \emph{Type Unions} in the Julia manual for details).
+There are also union types (see documentation of \emph{Type Unions} in the Julia
+manual for details).
 
-Finally you can define that your type is a subtype of an abstract type to properly position it in the type hierarchy, or even define your own abstract types (see documentation of \emph{Abstract Types} in the Julia manual for details).
+Finally you can define that your type is a subtype of an abstract type to
+properly position it in the type hierarchy, or even define your own abstract
+types (see documentation of \emph{Abstract Types} in the Julia manual for
+details).
 
 \subsection{Dictionaries}
 Associative collections (key-value dictionaries):
@@ -438,7 +491,8 @@ Associative collections (key-value dictionaries):
   delete!(y, "b")                   # delete a key from a collection, see also: pop!
   get(y,"c","default")              # return y["c"] or "default" if not haskey(y,"c")
 \end{lstlisting}
-Julia also supports operations on sets, created similarly with \lstinline|Set| constructor (please refer to the documentation for details).
+Julia also supports operations on sets, created similarly with \lstinline|Set|
+constructor (please refer to the documentation for details).
 
 \section{Strings}
 String operations:
@@ -457,9 +511,10 @@ String operations:
   chop(s)                # remove last character from s, returns a SubString
 \end{lstlisting}
 
-Both \lstinline|String| and \lstinline|SubString| are subtypes of \lstinline|AbstractString|.
-The  \lstinline|SubString| type is used to avoid copying of strings. Usually, when writing your own code,
-it is best to assume that the user will pass an arbitrary \lstinline|AbstractString|.
+Both \lstinline|String| and \lstinline|SubString| are subtypes of
+\lstinline|AbstractString|. The  \lstinline|SubString| type is used to avoid
+copying of strings. Usually, when writing your own code, it is best to assume
+that the user will pass an arbitrary \lstinline|AbstractString|.
 
 PCRE regular expressions handling:
 \begin{lstlisting}
@@ -470,7 +525,11 @@ PCRE regular expressions handling:
 
 There is a vast number of string functions --- please refer to the documentation.
 
-Warning! Note that you can index-into a string, e.g. \lstinline|"abc"[1]| will return you a character \lstinline|'a'|. However, in general Julia encodes standard strings using UTF-8 and indexing is based on bytes not characters, so correct string indexing requires you to understand how UTF-8 encoding works. See the documentation for details.
+Warning! Note that you can index-into a string, e.g. \lstinline|"abc"[1]| will
+return you a character \lstinline|'a'|. However, in general Julia encodes
+standard strings using UTF-8 and indexing is based on bytes not characters, so
+correct string indexing requires you to understand how UTF-8 encoding works. See
+the documentation for details.
 
 \section{Programming constructs}
 The simplest way to bind a value to a new variable is by an assignment:
@@ -502,7 +561,7 @@ There are standard programming constructs:
 
   i = 1
   while true
-      global i += 1 # global would not be needed if the loop were inside a function
+      global i += 1
       if i > 10
         break
       end
@@ -530,7 +589,7 @@ You can define your own functions:
   h(x...) = sum(x)/length(x) - mean(x) # a vararg function; x is a tuple; call first: using Statistics
   h(1, 2, 3)                     # the result is 0
   x = (2, 3)                     # a tuple
-  f(x)                           # error
+  f(x)                           # error - we try to add 10 to (2,3)
   f(x...)                        # OK - tuple unpacking
   s(x; a = 1, b = 1) = x * a / b # function with keyword arguments a and b
   s(3, b = 2)                    # call with a keyword argument
@@ -546,7 +605,8 @@ You can define your own functions:
   findall(==(1), 1:10)           # find indices of all elements equal to 1, similar: findfirst, findlast
 \end{lstlisting}
 
-As a convention functions with name ending with \lstinline|!| change their arguments in-place. See for example \lstinline|resize!| in this document.
+As a convention functions with name ending with \lstinline|!| change their
+arguments in-place. See for example \lstinline|resize!| in this document.
 
 Default function arguments are evaluated left to right:
 \begin{lstlisting}
@@ -559,7 +619,11 @@ Default function arguments are evaluated left to right:
   f6(;y=1,x=y) = x; f6() # 1
 \end{lstlisting}
 
-There is an important part of Julia terminology is that a \emph{function} can have multiple \emph{methods}. Each method specifies a behavior of a function for a given set of argument types. This behavior is called multiple dispatch and works only for positional arguments. Here are some short examples. More details are given in \emph{Methods} section of the Julia manual.
+There is an important part of Julia terminology is that a \emph{function} can
+have multiple \emph{methods}. Each method specifies a behavior of a function for
+a given set of argument types. This behavior is called multiple dispatch and
+works only for positional arguments. Here are some short examples. More details
+are given in \emph{Methods} section of the Julia manual.
 \begin{lstlisting}
   g(x, y) = println("all accepted") # method for g function accepting any type of x and y
   function g(x::Int, y::Int)        # method called when both x and y are Int
@@ -623,7 +687,7 @@ Special cases:
   f3(10)            # error; h not defined in outer scope
 
   const x = 2
-  x = 3 # warning, value changed
+  x = 3 # warning, value changed; but you should never do this as it might break compiled code
   x = 3.0 # error, wrong type
 
   function f()
@@ -633,7 +697,8 @@ Special cases:
 \end{lstlisting}
 Global constants speed up code execution as the compiler knows their type.
 
-Loops and comprehensions rebind variables on each iteration, so they are safe to use then creating closures in iteration:
+Loops and comprehensions rebind variables on each iteration, so they are safe to
+use then creating closures in iteration:
 \begin{lstlisting}
   Fs = Array{Any}(undef, 2)
   for i in 1:2
@@ -643,7 +708,8 @@ Loops and comprehensions rebind variables on each iteration, so they are safe to
 \end{lstlisting}
 
 \section{Modules}
-Modules encapsulate code and each module has its own global name space (module name of Julia REPL is \lstinline|Main|).
+Modules encapsulate code and each module has its own global name space (module
+name of Julia REPL is \lstinline|Main|).
 \begin{lstlisting}
   module M # module name
   export x # what module exposes for the world
@@ -662,12 +728,13 @@ Modules encapsulate code and each module has its own global name space (module n
   #import variable y to global scope (even if not exported)
   import .M.y
 \end{lstlisting}
-Rebinding values of variables defined in other modules is not allowed. Here is a short typical example that often surprises people:
+Rebinding values of variables defined in other modules is not allowed. Here is a
+short typical example that often surprises people:
 \begin{lstlisting}
   sin(1) # works
   sin = 1 # fails in module Main you cannot rebind a value defined in module Base
   cos = 1 # works, as cos was not called yet so it was not imported from Base into Main
-  cos # returns 1
+  cos # gives 1
   cos(1) # fails - cos is bound to 1 in the module Main
   Base.cos(1) # works
 \end{lstlisting}
@@ -682,7 +749,7 @@ Julia follows standard operators with the following quirks:
   x = [1 2 3]
   2x + 2(x .+ 1)   # multiplication can be omitted between a literal and a variable or a left parenthesis
   y = [1, 2, 3]
-  x + y  # an error
+  x + y  # an error - dimensions do not match
   x .+ y # a 3x3 matrix, dimension broadcasting
   x + y' # a 1x3 matrix
   x * y  # array multiplication, a 1-element vector (not scalar)
@@ -692,7 +759,7 @@ Julia follows standard operators with the following quirks:
   x === [1 2 3] # false, objects not identical
 
   z = reshape(1:9, 3, 3)
-  z + x  # error
+  z + x  # error - dimensions do not match
   z .+ x # x broadcasted vertically
   z .+ y # y broadcasted horizontally
 
@@ -759,8 +826,8 @@ Function broadcasting examples:
 \end{lstlisting}
 
 \section{Reading and writing data}
-For I/O details refer documentation. There are numerous packages providing this functionality.
-Basic operations from \lstinline|DelimitedFiles| package:
+For I/O details refer documentation. There are numerous packages providing this
+functionality. Basic operations from \lstinline|DelimitedFiles| module:
 \begin{itemize}
   \item \lstinline|readdlm|: read from file
   \item \lstinline|writedlm|: write to a file
@@ -790,9 +857,11 @@ Advanced randomness form \lstinline|Distributions| package:
 \end{lstlisting}
 
 \section{Statistics and machine learning}
-Visit \url{http://juliastats.github.io/} for the details (in particular R-like data frames).
+Visit \url{http://juliastats.github.io/} for the details (in particular R-like
+data frames).
 
-Starting with Julia version 1.0 there is a core language construct \lstinline|Missing| that allows to represent missing value.
+There is a core language construct \lstinline|Missing| that allows to represent
+missing value.
 \begin{lstlisting}
   missing # Missing value
   ismissing(missing) # true
@@ -820,8 +889,10 @@ Benchmarking:
 Use \lstinline|BenchmarkTools| package for a more powerful benchmarking functionality.
 
 \section{Plotting}
-There are several plotting packages for Julia like \lstinline|Plots| (which is an umbrella packages for several plotting backends) and \lstinline|PyPlot|.
-Here we show how to use on \lstinline|PyPlot| that should be familiar to Python users.
+There are several plotting packages for Julia like \lstinline|Plots| (which is
+an umbrella packages for several plotting backends) and \lstinline|PyPlot|. Here
+we show how to use on \lstinline|PyPlot| that should be familiar to Python
+users.
 \begin{lstlisting}
   using PyPlot
   using Random
@@ -861,7 +932,8 @@ producing:
 
 There are multiple packages supporting tabular data for the Julia language.
 
-Here we will show how \lstinline|DataFrames| and \lstinline|CSV| packages can be used.
+Here we will show how \lstinline|DataFrames| (version 0.21)
+and \lstinline|CSV| packages can be used.
 
 Loading a CSV file:
 \begin{lstlisting}
@@ -893,21 +965,20 @@ Here is a limited list of most useful operations on a \lstinline|DataFrame| we h
   df[1, 5] # get a value from row 1 and column 5 (Species again) from a DataFrame
   df[1:2, 1:2] # subset a data frame getting two first rows and two first columns
   Matrix(df[:, 1:4]) # convert columns 1 to 4 to a matrix
-  names(df) # get column names in the data frame as Symbols
+  names(df) # get column names in the data frame as strings
   nrow(df), ncol(df) # number of rows and columns in a data frame
-  df.key = axes(df, 1) # add a new variable named key to a data frame
   sort(df, :SepalWidth) # return a new data frame that is sorted by SepalWidth column
-  filter(row -> row.SepalWidth > 3, df) # return a new data frame with only rows that meet the predicate
+  filter(:SepalWidth =>  >(3), df) # return a new data frame with only rows that meet the predicate
   push!(df, (1, 2, 3, 4, "Some species")) # add a new row at the end of the data frame
+  df.key = axes(df, 1) # add a new variable named key to a data frame
 
   # calculate sum of SepalLength column by Species column and store it in x column
-  by(df, :Species, x = :SepalLength=>sum)
+  combine(groupby(df, :Species), :SepalLength => sum)
 
   # transform df to long format taking SepalLength as values and key and Species as id variable
   df2 = stack(df, :SepalLength, [:key, :Species])
   unstack(df2) # a reverse operation - wide to long format
 \end{lstlisting}
-
 
 \section{The Joy of Julia}
 
