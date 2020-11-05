@@ -213,6 +213,12 @@ General conversion can be done using \lstinline|convert(Type, x)| (typically
 \begin{lstlisting}
   convert(Int64, 1.0) # convert float to integer
 \end{lstlisting}
+Julia is throwing an inexact conversion error, if it cannot convert exactly.
+\begin{lstlisting}
+  convert(Int64, 1.3) # convert float to integer -> throws inexact conversion error
+\end{lstlisting}
+Use \lstinline|floor(Int64,1.3)|, \lstinline|ceil(Int64,1.3)| or \lstinline|round(Int64,1.3)| to solve it.
+
 Parsing strings can be done using \lstinline|parse(Type, str)|:
 \begin{lstlisting}
   parse(Int64, "1") # parse "1" string as Int64
