@@ -92,14 +92,14 @@ You can read about them in the latest Julia documentation at
 (you can check your version by calling running \lstinline|versioninfo()| in your
 Julia session):
 \begin{lstlisting}
-Julia Version 1.4.2
-Commit 44fa15b150* (2020-05-23 18:35 UTC)
+Julia Version 1.6.1
+Commit 6aaedecc44 (2021-04-23 05:59 UTC)
 Platform Info:
   OS: Linux (x86_64-pc-linux-gnu)
   CPU: Intel(R) Core(TM) i7-8550U CPU @ 1.80GHz
   WORD_SIZE: 64
   LIBM: libopenlibm
-  LLVM: libLLVM-8.0.1 (ORCJIT, skylake)
+  LLVM: libLLVM-11.0.1 (ORCJIT, skylake)
 \end{lstlisting}
 
 
@@ -168,11 +168,11 @@ println(es(100))         # print all primes less or equal than 100
 \section{Basic literals and types}
 Basic scalar literals are the following:
 \begin{lstlisting}
-  1::Int               # 64 bit integer on 64 bit Julia, no overflow warnings
-  1.0::Float64         # 64 bit float, defines NaN, -Inf, Inf
-  true::Bool           # boolean, allows "true" and "false"
-  'c'::Char            # character, allows Unicode
-  "s"::AbstractString  # strings, allows Unicode, see also Strings below
+  1::Int       # 64 bit integer on 64 bit Julia, no overflow warnings
+  1.0::Float64 # 64 bit float, defines NaN, -Inf, Inf
+  true::Bool   # boolean, allows "true" and "false"
+  'c'::Char    # character, allows Unicode
+  "s"::String  # strings, allows Unicode, see also Strings below
 \end{lstlisting}
 The syntax \lstinline|x::Type| is a literal \lstinline|x| with type
 \lstinline|Type| assertion. In practice the type assertion is not needed. Here
@@ -193,19 +193,19 @@ it. This is especially important in function calls. The simplest way to perform
 the conversion of a value \lstinline|x| to type \lstinline|T| by writing
 \lstinline|T(x)|, for example:
 \begin{lstlisting}
-  Int64('a')     # character to integer
-  Int64(2.0)     # float to integer
-  Int64(1.3)     # inexact error
-  Int64("a")     # error no conversion possible
-  Float64(1)     # integer to float
-  Bool(1)        # converts to boolean true
-  Bool(0)        # converts to boolean false
-  Bool(2)        # conversion error
-  Char(89)       # integer to char
-  string(true)   # cast Bool to string (works with other types, note small caps)
-  string(1,true) # string can take more than one argument and concatenate them
-  zero(10.0)     # zero of type of 10.0
-  one(Int64)     # one of type Int64
+  Int64('a')      # character to integer
+  Int64(2.0)      # float to integer
+  Int64(1.3)      # inexact error
+  Int64("a")      # error no conversion possible
+  Float64(1)      # integer to float
+  Bool(1)         # converts to boolean true
+  Bool(0)         # converts to boolean false
+  Bool(2)         # conversion error
+  Char(89)        # integer to char
+  string(true)    # cast Bool to string (works with other types, note small caps)
+  string(1, true) # string can take more than one argument and concatenate them
+  zero(10.0)      # zero of type of 10.0
+  one(Int64)      # one of type Int64
 \end{lstlisting}
 General conversion can be done using \lstinline|convert(Type, x)| (typically
 \lstinline|convert| will not perform a copy if \lstinline|x| already has type
@@ -368,7 +368,7 @@ Useful array creation functions are the following:
 Vectors (1D arrays) are treated as column vectors.
 
 Most of the functionality for working with matrices are in
-\lstinline|LinearAlgebra| package. Additionally Julia offers sparse and
+\lstinline|LinearAlgebra| module. Additionally Julia offers sparse and
 distributed matrices (see the documentation for details).
 
 Commonly needed array utility functions:
@@ -449,12 +449,13 @@ Array types syntax examples:
 
 Numbers are treated as 0-dimensional containers:
 \begin{lstlisting}
-  x = 10   # an integer
-  x[]      # returns 10
-  x[1,1]   # also returns 10, as trailing 1-s are ignored by Julia
-  size(x)  # an empty tuple
-  x = [10] # a one element array can be also indexed with []
-  x[]      # gets you 10, this will only work for arrays with exactly 1 element
+  x = 10    # an integer
+  x[]       # returns 10
+  x[1, 1]   # also returns 10, as trailing 1-s are ignored by Julia
+  size(x)   # an empty tuple
+  x = [10]  # a one element array can be also indexed with []
+  x[]       # gets you 10, this will only work for arrays with exactly 1 element
+  only(x)   # returns the one and only element of x, otherwise errors
 \end{lstlisting}
 
 \subsection{Composite types}
@@ -652,11 +653,11 @@ The following constructs introduce a new variable scope:
 \lstinline|for|, \lstinline|try/catch|,
 \lstinline|let|, \lstinline|struct|, \lstinline|mutable struct|.
 
-You can define variables as:
+Additionally you can define variables as:
 \begin{itemize}
   \item \lstinline|global|: use variable from a global scope of the current module;
-  \item \lstinline|local|: define a new variable in a current scope;
-  \item \lstinline|const|: ensure variable type is constant (global only).
+  \item \lstinline|local|: define a new variable in a current scope (useful to avoid variable name conflicts, or to make sure variable is present in outer scope; see examples below);
+  \item \lstinline|const|: signal to the compiler that variable type is constant (global only).
 \end{itemize}
 
 Special cases:
@@ -692,12 +693,21 @@ Special cases:
   end
   f3(10)            # error; h not defined in outer scope
 
+  function f4(n)
+    local h
+    for i = 1:n
+      h = i
+    end
+    h
+  end
+  f4(10)            # 10; h is defined in outer scope
+
   const x = 2
   x = 3 # warning, value changed; but you should never do this as it might break compiled code
   x = 3.0 # error, wrong type
 
   function f()
-      x::Int = 1
+      x::Int = 1 # this is a way to specify a required type of a variable
       x = 2.5 # error will be thrown when f() is called as x has to have type Int
   end
 \end{lstlisting}
@@ -712,6 +722,36 @@ use then creating closures in iteration:
   end
   Fs[1](), Fs[2]() # (1, 2)
 \end{lstlisting}
+
+Note that \lstinline|for|, \lstinline|while|, \lstinline|try|, and \lstinline|struct|
+use a so called \emph{soft} local scope. Simplifying a bit this means that if they
+are used in a top level (global) scope they overwrite existing global variables
+if you are in an interactive mode (REPL, notebook):
+
+\begin{lstlisting}
+  julia> x = 5
+  5
+
+  julia> for i in 1:10
+         x = i
+         end
+
+  julia> x
+  10
+\end{lstlisting}
+
+However, the same code passed in an non-interactive session prints a warning
+and does not overwrite a global variable:
+
+\begin{lstlisting}
+  ~$ julia -e "x=5; for i in 1:10 x = i end; println(x)"
+  | Warning: Assignment to `x` in soft scope is ambiguous because a global variable
+  by the same name exists: `x` will be treated as a new local. Disambiguate by using
+  `local x` to suppress this warning or `global x` to assign to the existing global variable.
+  | @ none:1
+  5
+\end{lstlisting}
+
 
 \section{Modules}
 Modules encapsulate code and each module has its own global name space (module
@@ -851,7 +891,7 @@ Basic random numbers:
   randn(10)     # generate vector of 10 random numbers from standard normal distribution
 \end{lstlisting}
 
-Advanced randomness form \lstinline|Distributions| package:
+Advanced randomness form Distributions.jl package (version 0.24.18):
 \begin{lstlisting}
   using Distributions # load package
   sample(1:10, 10)    # single bootstrap sample from set 1-10
@@ -874,6 +914,18 @@ missing value.
   coalesce(missing, 1, 2) # return first non-missing value, or missing if all are missing
 \end{lstlisting}
 
+Here are some most basic statistical functions shipped with Julia:
+\begin{lstlisting}
+  using Statistics # module defining the statistical functions
+  mean([1, 2, 3]) # mean
+  var([1, 2, 3]) # variance
+  std([1, 2, 3]) # standard deviation
+  quantile(1:100, 0.05) # quantiles
+  median(1:100) # median
+  cov(1:5, 5:-1:1) # covariance
+  cor(1:5, 5:-1:1) # Pearson's correlation
+\end{lstlisting}
+
 \section{Macros}
 You can define macros (see documentation for details). Useful standard macros.
 
@@ -892,40 +944,47 @@ Benchmarking:
   @elapsed [x for x in 1:10^6]   # return time
   @allocated [x for x in 1:10^6] # return memory
 \end{lstlisting}
-Use \lstinline|BenchmarkTools| package for a more powerful benchmarking functionality.
+Use BenchmarkTools.jl package (version 0.7.0) for a more powerful benchmarking functionality.
 
 \section{Plotting}
-There are several plotting packages for Julia like \lstinline|Plots| (which is
-an umbrella packages for several plotting backends) and \lstinline|PyPlot|. Here
-we show how to use on \lstinline|PyPlot| that should be familiar to Python
-users.
+There are several plotting packages for Julia like Plots.jl (which is
+an umbrella packages for several plotting backends). Here we show how to use it
+(version 1.13.2):
 \begin{lstlisting}
-  using PyPlot
+  using Plots
   using Random
   Random.seed!(1) # make the plot reproducible
-  x, y = randn(100), randn(100)
-  scatter(x, y)
+  x, y = 1:100, randn(100)
+  plot(x, y) # line plot
+  scatter(x, y) # scatter plot
+  histogram(y) # histogram
+  bar(y) # barplot
 \end{lstlisting}
 
-A simple example adapting\newline\url{https://matplotlib.org/1.2.1/examples/pylab_examples/histogram_demo.html}:
+A simple example reproducing \url{https://matplotlib.org/1.2.1/examples/pylab_examples/histogram_demo.html}
+in which we also use StatsPlots.jl package (version 0.14.20):
 \begin{lstlisting}
   using Distributions
-  using PyPlot
+  using Plots
+  using Random
+  using StatsPlots
 
+  Random.seed!(1234)
   mu, sigma = 100, 15
   x = mu .+ sigma * randn(10000)
 
-  n, bins, patches = plt.hist(x, 50, density=1,
-      facecolor="green", alpha=0.75)
-
-  y = pdf.(Ref(Normal(mu, sigma)), bins);
-  plot(bins, y, "r--", linewidth=1)
-
-  xlabel("Smarts")
-  ylabel("Probability")
-  title(raw"$\mathrm{Histogram\ of\ IQ:}\ \mu=100,\ \sigma=15$")
-  axis([40, 160, 0, 0.03])
-  grid(true)
+  histogram(x,
+            title="Histogram of IQ: \\mu=100, \\sigma=15",
+            label=nothing,
+            xlabel="Smarts",
+            ylabel="Probability",
+            color="green",
+            normalize=true)
+  plot!(Normal(mu, sigma),
+        color="red",
+        label=nothing,
+        linestyle=:dash)
+  savefig("hist.pdf")
 \end{lstlisting}
 
 producing:
@@ -938,28 +997,29 @@ producing:
 
 There are multiple packages supporting tabular data for the Julia language.
 
-Here we will show how \lstinline|DataFrames| (version 0.21)
-and \lstinline|CSV| packages can be used.
+Here we will show how DataFrames.jl (version 1.1.1)
+and CSV.jl (version 0.8.4) packages can be used.
 
 Loading a CSV file:
 \begin{lstlisting}
   using DataFrames
   using CSV
   path = joinpath(dirname(pathof(DataFrames)), "../docs/src/assets/iris.csv")
-  df = DataFrame(CSV.File(path));
+  df = CSV.read(path, DataFrame);
   first(df, 5) # print first 5 rows of a data frame; use the last function for last rows
 \end{lstlisting}
 
 produces the following output:
 \begin{lstlisting}
-  4x5 DataFrame
-  | Row | SepalLength | SepalWidth | PetalLength | PetalWidth | Species     |
-  |     | Float64     | Float64    | Float64     | Float64    | String      |
-  |-----+-------------+------------+-------------+------------+-------------|
-  | 1   | 5.1         | 3.5        | 1.4         | 0.2        | Iris-setosa |
-  | 2   | 4.9         | 3.0        | 1.4         | 0.2        | Iris-setosa |
-  | 3   | 4.7         | 3.2        | 1.3         | 0.2        | Iris-setosa |
-  | 4   | 4.6         | 3.1        | 1.5         | 0.2        | Iris-setosa |
+5x5 DataFrame
+ Row | SepalLength  SepalWidth  PetalLength  PetalWidth  Species
+     | Float64      Float64     Float64      Float64     String
+---------------------------------------------------------------------
+   1 |         5.1         3.5          1.4         0.2  Iris-setosa
+   2 |         4.9         3.0          1.4         0.2  Iris-setosa
+   3 |         4.7         3.2          1.3         0.2  Iris-setosa
+   4 |         4.6         3.1          1.5         0.2  Iris-setosa
+   5 |         5.0         3.6          1.4         0.2  Iris-setosa
 \end{lstlisting}
 
 Here is a limited list of most useful operations on a \lstinline|DataFrame| we have just read in:
@@ -968,6 +1028,7 @@ Here is a limited list of most useful operations on a \lstinline|DataFrame| we h
   describe(df) # get a summary information about a data frame
   df.Species # get a column Species from a data frame without copying
   df[!, :Species] # the same as above
+  df[:, :Species] # the same as above, but perform a copy
   df[1, 5] # get a value from row 1 and column 5 (Species again) from a DataFrame
   df[1:2, 1:2] # subset a data frame getting two first rows and two first columns
   Matrix(df[:, 1:4]) # convert columns 1 to 4 to a matrix
@@ -983,7 +1044,7 @@ Here is a limited list of most useful operations on a \lstinline|DataFrame| we h
 
   # transform df to long format taking SepalLength as values and key and Species as id variable
   df2 = stack(df, :SepalLength, [:key, :Species])
-  unstack(df2) # a reverse operation - wide to long format
+  unstack(df2, [:key, :variable], :Species, :value) # a reverse operation - wide to long format
 \end{lstlisting}
 
 \section{The Joy of Julia}
