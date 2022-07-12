@@ -788,7 +788,7 @@ short typical example that often surprises people:
 \section{Operators}
 Julia follows standard operators with the following quirks:
 \begin{lstlisting}
-  true || false    # binary or operator (singletons only), || and && use short-circut evaluation
+  true || false    # binary or operator (singletons only), || and && use short-circuit evaluation
   [1 2] .& [2 1]   # bitwise and operator (vectorized by .)
   1 < 2 < 3        # chaining conditions is OK (singletons only without .)
   [1 2] .< [2 1]   # for vectorized operators need to add '.' in front
