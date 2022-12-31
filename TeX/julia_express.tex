@@ -92,17 +92,16 @@ You can read about them in the latest Julia documentation at
 (you can check your version by calling running \lstinline|versioninfo()| in your
 Julia session):
 \begin{lstlisting}
-Julia Version 1.6.1
-Commit 6aaedecc44 (2021-04-23 05:59 UTC)
+Julia Version 1.8.4
+Commit 00177ebc4f (2022-12-23 21:32 UTC)
 Platform Info:
-  OS: Linux (x86_64-pc-linux-gnu)
-  CPU: Intel(R) Core(TM) i7-8550U CPU @ 1.80GHz
+  OS: Windows (x86_64-w64-mingw32)
+  CPU: 12 x Intel(R) Core(TM) i7-10850H CPU @ 2.70GHz
   WORD_SIZE: 64
   LIBM: libopenlibm
-  LLVM: libLLVM-11.0.1 (ORCJIT, skylake)
+  LLVM: libLLVM-13.0.1 (ORCJIT, skylake)
+  Threads: 1 on 12 virtual cores
 \end{lstlisting}
-
-
 
 If you prefer to read this document in a different format than PDF then the
 simplest approach to do it is to clone the project repository
@@ -113,7 +112,8 @@ pandoc -i julia_express.tex -f latex -t html5 -s -o julia_express.html
 \end{lstlisting}
 will produce you a HTML output.
 
-All suggestions how this guide can be improved are welcomed. Please contact me at \href{mailto:bkamins@sgh.waw.pl}{bkamins@sgh.waw.pl}.
+All suggestions how this guide can be improved are welcomed. Please contact me
+at \href{mailto:bkamins@sgh.waw.pl}{bkamins@sgh.waw.pl}.
 
 \section{Getting around}
 
@@ -184,32 +184,35 @@ catch bugs in your code.
 
 An important feature of integers in Julia is that by default they are 64 bit on
 64 bit Julia and 32 bit on 32 bit Julia. This means that \lstinline|1::Int32|
-assertion will fail on 64-bit Julia. Notably \lstinline|Int| is a constant whose
+assertion will fail on 64-bit Julia.
+
+Notably \lstinline|Int| is a constant whose
 value is either \lstinline|Int64| or \lstinline|Int32| depending on version (the
 same with unsigned integer \lstinline|UInt|).
 
 There is no automatic type conversion, unless some function explicitly performs
-it. This is especially important in function calls. The simplest way to perform
-the conversion of a value \lstinline|x| to type \lstinline|T| by writing
-\lstinline|T(x)|, for example:
+it. This is especially important in function calls. The simplest, and
+preferred, way to perform the construction of a value \lstinline|x| to type
+\lstinline|T| by writing \lstinline|T(x)|, for example:
 \begin{lstlisting}
   Int64('a')      # character to integer
   Int64(2.0)      # float to integer
   Int64(1.3)      # inexact error
   Int64("a")      # error no conversion possible
   Float64(1)      # integer to float
-  Bool(1)         # converts to boolean true
-  Bool(0)         # converts to boolean false
-  Bool(2)         # conversion error
+  Bool(1)         # constructs to boolean true
+  Bool(0)         # constructs to boolean false
+  Bool(2)         # construction error
   Char(89)        # integer to char
   string(true)    # cast Bool to string (works with other types, note small caps)
   string(1, true) # string can take more than one argument and concatenate them
   zero(10.0)      # zero of type of 10.0
   one(Int64)      # one of type Int64
 \end{lstlisting}
-General conversion can be done using \lstinline|convert(Type, x)| (typically
+Conversion can be done using \lstinline|convert(Type, x)| (typically
 \lstinline|convert| will not perform a copy if \lstinline|x| already has type
-\lstinline|Type|):
+\lstinline|Type|; for this reason it is typically preferable to perform
+construction, as it was explained above, rather than conversion):
 \begin{lstlisting}
   convert(Int64, 1.0) # convert float to integer
 \end{lstlisting}
@@ -217,17 +220,19 @@ Julia is throwing an inexact conversion error, if it cannot perform it exactly.
 \begin{lstlisting}
   convert(Int64, 1.3) # convert float to integer -> throws inexact conversion error
 \end{lstlisting}
-Use \lstinline|floor(Int64,1.3)|, \lstinline|ceil(Int64,1.3)| or \lstinline|round(Int64,1.3)| to solve it.
+Use \lstinline|floor(Int64, 1.3)|, \lstinline|ceil(Int64, 1.3)| or
+\lstinline|round(Int64, 1.3)| to perform rounding.
 
 Parsing strings can be done using \lstinline|parse(Type, str)|:
 \begin{lstlisting}
   parse(Int64, "1") # parse "1" string as Int64
 \end{lstlisting}
 Automatic promotion of many arguments to common type (if any exists) can be
-achieved using \lstinline|promote|:
+achieved using \lstinline|promote| (typically you will not need to perform such
+promotion yourself):
 \begin{lstlisting}
-  promote(true, BigInt(1)//3, 1.0) # tuple (see Tuples) of BigFloats, true promoted to 1.0
-  promote("a", 1)                  # promotion to a common type is not possible
+  promote(true, BigInt(1) // 3, 1.0) # tuple (see Tuples) of BigFloats, true promoted to 1.0
+  promote("a", 1)                    # error, promotion to a common type is not possible
 \end{lstlisting}
 Many operations (arithmetic, assignment) are defined in a way that performs
 automatic type promotion (so this is a way to work around no automatic type
@@ -242,15 +247,16 @@ One can verify type of a value in the following way:
   1.0 isa Number             # an alternative syntax; true, Number is abstract type
   supertype(Int64)           # supertype of Int64
   subtypes(Real)             # subtypes of abstract type Real
+  Int <: Real                # true, <: checks if type is subtype of other type
 \end{lstlisting}
 It is possible to perform calculations using arbitrary precision arithmetic,
 complex and rational numbers:
 \begin{lstlisting}
-  BigInt(10)^1000   # big integer
-  BigFloat(10)^1000 # big float, see documentation how to change default precision
-  big(1.5)          # value of big type chosen appropriately, in this case BigFloat
-  1 + 1im           # a complex number
-  123//456          # rational numbers are created using // operator
+  BigInt(10) ^ 1000   # big integer
+  BigFloat(10) ^ 1000 # big float, see documentation how to change default precision
+  big(1.5)            # value of big type chosen appropriately, in this case BigFloat
+  1 + 1im             # a complex number
+  123 // 456          # rational numbers are created using // operator
 \end{lstlisting}
 
 \begin{figure}
@@ -285,6 +291,10 @@ complex and rational numbers:
 
 Type hierarchy of all standard numeric types is given in Figure \ref{fig:numeric}.
 
+An important feature is that \verb|Bool| is considered to be \verb|Integer|.
+This is useful for performing arithmetic operations, but sometimes can be
+surprising.
+
 \section{Special literals and types}
 \begin{lstlisting}
   Any     # all objects are of this type
@@ -309,7 +319,7 @@ Tuples are immutable sequences indexed from 1:
   x[1:2]        # (1, 2) (tuple)
   x[4]          # bounds error
   x[1] = 1      # error - a tuple is not mutable
-  a, b = x      # tuple unpacking a==1, b==2
+  a, b = x      # tuple unpacking a == 1, b == 2
 \end{lstlisting}
 Additionally you can add names to tuple entries (via named tuples):
 \begin{lstlisting}
@@ -319,6 +329,8 @@ Additionally you can add names to tuple entries (via named tuples):
   x = (p=1, q=2, r=3)
   x.p           # access to element p of a tuple
   typeof(x)     # NamedTuple{(:p, :q, :r),Tuple{Int64,Int64,Int64}}, field names are part of type
+  a, b, c = x   # NamedTuple also supports unpacking; here we define a, b, and c variables
+  (; a, b, c)   # a convenience syntax to create a named tuple with a, b, c fields from variables
 \end{lstlisting}
 \lstinline|NamedTuple| can be thought of as an anonymous \lstinline|struct| ---
 see composite types below (so they behave in a different way than tuples when
@@ -348,6 +360,7 @@ Useful array creation functions are the following:
   x = [1, 2]           # a two element vector
   resize!(x, 5)        # resize x in place to hold 5 values (filled with garbage)
   [1]                  # a vector with one element (not a scalar)
+  [1;;]                # a matrix with one element (not a scalar)
   [x * y for x in 1:2, y in 1:3] # a comprehension generating 2x3 array
   Float64[x^2 for x in 1:4] # casting comprehension result element type to Float64
   [1 2]                # 1x2 matrix (hcat function)
@@ -458,6 +471,12 @@ Numbers are treated as 0-dimensional containers:
   only(x)   # returns the one and only element of x, otherwise errors
 \end{lstlisting}
 
+\verb|Ref| is a special 0-dimensional container that can store any value:
+\begin{lstlisting}
+  x = Ref("a") # an 0-dimensional containers storing "a" string
+  x[]          # returns "a"
+\end{lstlisting}
+
 \subsection{Composite types}
 You can define and access composite types. Here is an example of a mutable composite type:
 \begin{lstlisting}
@@ -496,7 +515,7 @@ Associative collections (key-value dictionaries):
   haskey(y, "b")                    # check if y contains key "b"
   keys(y), values(y)                # tuple of collections returning keys and values in y
   delete!(y, "b")                   # delete a key from a collection, see also: pop!
-  get(y,"c","default")              # return y["c"] or "default" if not haskey(y,"c")
+  get(y, "c", "default")            # return y["c"] or "default" if not haskey(y,"c")
 \end{lstlisting}
 Julia also supports operations on sets, created similarly with \lstinline|Set|
 constructor (please refer to the documentation for details).
@@ -733,7 +752,7 @@ if you are in an interactive mode (REPL, notebook):
   5
 
   julia> for i in 1:10
-         x = i
+             x = i
          end
 
   julia> x
@@ -790,6 +809,7 @@ Julia follows standard operators with the following quirks:
 \begin{lstlisting}
   true || false    # binary or operator (singletons only), || and && use short-circuit evaluation
   [1 2] .& [2 1]   # bitwise and operator (vectorized by .)
+  [true, false] .&& [true false] # logical and operator (vectorized by .); the syntax creates truth table
   1 < 2 < 3        # chaining conditions is OK (singletons only without .)
   [1 2] .< [2 1]   # for vectorized operators need to add '.' in front
   x = [1 2 3]
@@ -852,7 +872,7 @@ Function broadcasting examples:
   @info "Info"      # print information, similarly @warn and @error (see Logging module)
   ntuple(x->2x, 3)  # create tuple by calling x->2x with values 1, 2 and 3
   @isdefined x      # if variable x is defined
-  y = Array{Any}(undef,2); isassigned(y, 3)  # if position 3 in array is assigned (not out of bounds or #undef)
+  y = Array{Any}(undef,2); isassigned(y, 3)  # is 3 in array is assigned (not out of bounds or #undef)
   fieldtype(typeof(1:2),:start) # get type of the field in composite type (passed as symbol)
   fieldnames(typeof(1:2)) # get field names of a type
   zip(1:3, 1:3) |> collect # convert iterables to iterable tuple and pass it to collect
@@ -885,13 +905,13 @@ Warning! Trailing spaces are not discarded if \lstinline|delim=' '| in file read
 Basic random numbers:
 \begin{lstlisting}
   Random.seed!(1) # set random number generator seed to 1; needs calling first: using Random
-  rand()        # generate random number from U[0,1)
-  rand(3, 4)    # generate 3x4 matrix of random numbers from U[0,1]
-  rand(2:5, 10) # generate vector of 10 random integer numbers in range form 2 to 5
-  randn(10)     # generate vector of 10 random numbers from standard normal distribution
+  rand()          # generate random number from U[0,1)
+  rand(3, 4)      # generate 3x4 matrix of random numbers from U[0,1]
+  rand(2:5, 10)   # generate vector of 10 random integer numbers in range form 2 to 5
+  randn(10)       # generate vector of 10 random numbers from standard normal distribution
 \end{lstlisting}
 
-Advanced randomness form Distributions.jl package (version 0.24.18):
+Advanced randomness form Distributions.jl package (version 0.25.79):
 \begin{lstlisting}
   using Distributions # load package
   sample(1:10, 10)    # single bootstrap sample from set 1-10
@@ -944,12 +964,13 @@ Benchmarking:
   @elapsed [x for x in 1:10^6]   # return time
   @allocated [x for x in 1:10^6] # return memory
 \end{lstlisting}
-Use BenchmarkTools.jl package (version 0.7.0) for a more powerful benchmarking functionality.
+Use BenchmarkTools.jl package (version 1.3.2) for a more powerful benchmarking
+functionality.
 
 \section{Plotting}
 There are several plotting packages for Julia like Plots.jl (which is
 an umbrella packages for several plotting backends). Here we show how to use it
-(version 1.13.2):
+(version 1.38.0):
 \begin{lstlisting}
   using Plots
   using Random
@@ -961,8 +982,8 @@ an umbrella packages for several plotting backends). Here we show how to use it
   bar(y) # barplot
 \end{lstlisting}
 
-A simple example reproducing \url{https://matplotlib.org/1.2.1/examples/pylab_examples/histogram_demo.html}
-in which we also use StatsPlots.jl package (version 0.14.20):
+An example reproducing \url{https://matplotlib.org/1.2.1/examples/pylab_examples/histogram_demo.html}
+in which we also use StatsPlots.jl package (version 0.15.4):
 \begin{lstlisting}
   using Distributions
   using Plots
@@ -997,8 +1018,8 @@ producing:
 
 There are multiple packages supporting tabular data for the Julia language.
 
-Here we will show how DataFrames.jl (version 1.1.1)
-and CSV.jl (version 0.8.4) packages can be used.
+Here we will show how DataFrames.jl (version 1.4.4)
+and CSV.jl (version 0.10.8) packages can be used.
 
 Loading a CSV file:
 \begin{lstlisting}
@@ -1052,13 +1073,13 @@ Here is a limited list of most useful operations on a \lstinline|DataFrame| we h
 The Julia language is so flexible that it allows you to transform
 
 this$\quad$
-\includegraphics{heart_in.png}
+\includegraphics[height=55mm]{heart_in.png}
 $\quad$to this$\quad$
-\includegraphics{heart_out.png}
+\includegraphics[height=55mm]{heart_out.png}
 
 You can fully appreciate it (actually it is an animation of revolving hearts) when you run the code yourself. You can find it here
 \url{https://github.com/maxbennedich/code-golf/tree/cea06287689868f2342959f9c12f0b629a1d0cf4/hearts}.
 
-Please make sure that you run the code on a fast terminal with font that supports Unicode (for instance under Windows I can recommend ConEmu, \url{https://conemu.github.io/}).
+Please make sure that you run the code on a fast terminal with font that supports Unicode.
 
 \end{document}
